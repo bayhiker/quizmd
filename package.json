@@ -1,0 +1,21 @@
+{
+  "main": "dist/quizmd.js",
+  "module": "dist/quizmd.mjs",
+  "typings": "dist/quizmd.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-typescript": "^7.16.0",
+    "@types/jest": "^27.0.3",
+    "esbuild": "^0.14.2",
+    "jest": "^27.4.3",
+    "rollup": "^2.60.2",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-esbuild": "^4.7.2",
+    "ts-node": "^10.4.0"
+  }
+}
