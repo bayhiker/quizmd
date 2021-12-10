@@ -4,7 +4,7 @@ describe("QuizMd Test", () => {
   test("getRenderers", async () => {
     const { getAllRenderers } = quizmd;
     const renderers = await getAllRenderers();
-    expect(Object.keys(renderers).length).toEqual(10);
+    expect(Object.keys(renderers).length).toEqual(11);
   });
 
   it("do not render if startOnLoad is set to false", function () {

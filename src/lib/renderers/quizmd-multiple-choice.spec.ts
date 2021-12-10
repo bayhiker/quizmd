@@ -31,7 +31,7 @@ describe("quizmd-plugin-multiple-choice", () => {
       content: "Multiple Multiple Choice",
     });
     expect(html).toEqual(
-      `<div class="quizmd-multiple-choice-mchoice">Multiple Multiple Choice</div>`
+      `<div class="quizmd-multiple-choice-mmchoice">Multiple Multiple Choice</div>`
     );
   });
 });

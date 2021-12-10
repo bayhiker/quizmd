@@ -3,7 +3,7 @@
 build
 diff
 dist/*
-!dist/*.bundle.js
+!dist/samples.html
 node_modules
 test
 src/**.js

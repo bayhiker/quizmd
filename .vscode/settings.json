@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["esbuild", "kvparse", "kvparser", "quizmd"]
+  "cSpell.words": ["esbuild", "kvparse", "kvparser", "quizmd"],
+  "[dist/samples.html]": { "editor.formatOnSave": false }
 }

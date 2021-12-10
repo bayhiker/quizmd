@@ -6,6 +6,7 @@ import {
 } from "./renderers/quizmd-renderer";
 
 const allRenderers: QuizMdRenderers = QuizMdParser.getAllRenderers();
+const globalAttrs = 'fill="none" stroke-width="0.1" stroke="black"';
 
 describe("QuizMdParser Unit Test", () => {
   test("No compilation error", async () => {
@@ -14,7 +15,7 @@ describe("QuizMdParser Unit Test", () => {
     element.appendChild(document.createTextNode("square: r=10"));
     await quizMdParser.parseNode(element);
     const regExp = new RegExp(
-      '^.*?<svg viewBox="0, 0, 100, 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" x="0" y="0" fill="none" stroke="black"></rect></svg>.*$'
+      '^.*?<rect width="100" height="100" x="0" y="0" .*?></rect>.*$'
     );
     expect(element.innerHTML).toMatch(regExp);
   });
@@ -42,7 +43,7 @@ describe("QuizMdParser Unit Test", () => {
     element.removeAttribute(processedTag);
     await quizMdParser.parseNode(element);
     expect(element.innerHTML).toMatch(
-      '<rect width="10" height="10" x="0" y="0" fill="none" stroke="black"></rect>'
+      `<rect width="10" height="10" x="0" y="0" ${globalAttrs}></rect>`
     );
     expect(element.getAttribute(processedTag)).toBeTruthy();
   });
@@ -110,7 +111,7 @@ describe("renderer", () => {
       `square: side=50`,
     ]);
     expect(s).toMatch(
-      '<rect width="50" height="50" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
@@ -120,7 +121,7 @@ describe("renderer", () => {
       "side=50",
     ]);
     expect(s).toMatch(
-      '<rect width="50" height="50" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
@@ -129,7 +130,7 @@ describe("renderer", () => {
       `square:- some text`,
     ]);
     expect(s).toMatch(
-      '<rect width="100" height="100" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="100" height="100" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
@@ -139,10 +140,10 @@ describe("renderer", () => {
       "  rect: width=30 height=50",
     ]);
     expect(s).toMatch(
-      '<rect width="50" height="50" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
     );
     expect(s).toMatch(
-      '<rect width="30" height="50" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="30" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
@@ -162,10 +163,10 @@ describe("renderer", () => {
       "rect: width=30 height=50",
     ]);
     expect(s).toMatch(
-      '<rect width="50" height="50" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
     );
     expect(s).toMatch(
-      '<rect width="30" height="50" x="0" y="0" fill="none" stroke="black"/>'
+      `<rect width="30" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 

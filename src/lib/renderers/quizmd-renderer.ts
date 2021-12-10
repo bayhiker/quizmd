@@ -139,6 +139,11 @@ export class QuizMdRenderer {
       console.warn(`No renderer class found for !${currentEntityName}!`);
       return "";
     } else {
+      console.log(
+        `rendering ${currentEntityName} with config ${JSON.stringify(
+          currentEntityConfig
+        )}`
+      );
       const renderer = new RendererClass(
         renderers,
         currentEntityConfig,

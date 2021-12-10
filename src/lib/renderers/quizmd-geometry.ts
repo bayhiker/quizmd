@@ -24,7 +24,11 @@ abstract class GeometryRenderer extends QuizMdRenderer {
   }
 }
 
-abstract class SvgRenderer extends GeometryRenderer {
+const defaultViewBoxX = 10;
+const defaultViewBoxY = 10;
+const defaultViewBox = `0 0 ${defaultViewBoxX} ${defaultViewBoxY}`;
+
+class SvgRenderer extends GeometryRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
@@ -33,17 +37,36 @@ abstract class SvgRenderer extends GeometryRenderer {
     super(allRenderers, rendererParams, contentLines);
   }
 
+  getViewBox(): string {
+    return (this.rendererParams["viewBox"] as string) || defaultViewBox;
+  }
+
+  getViewBoxCenter(): Point {
+    const viewBox = this.getViewBox();
+    const [, , x, y] = this.getViewBox().split(/\s+/);
+    return new Point(Math.round(Number(x) / 2), Math.round(Number(y) / 2));
+  }
+
+  renderOpening(): string {
+    return this.getSvgTagStart();
+  }
+
   renderClosing(): string {
     return "</svg>";
   }
 
-  getViewBox(): string {
-    return (this.rendererParams["viewBox"] as string) || "0, 0, 100, 100";
+  getSvgTagStart() {
+    return `<svg viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg">`;
   }
+}
 
-  getViewBoxCenter(): Point {
-    const [, , x, y] = this.getViewBox().split(/,\s+/);
-    return new Point(Math.round(Number(x) / 2), Math.round(Number(y) / 2));
+class ShapeRenderer extends GeometryRenderer {
+  constructor(
+    allRenderers: QuizMdRenderers,
+    rendererParams: RendererParams,
+    contentLines: string[] = []
+  ) {
+    super(allRenderers, rendererParams, contentLines);
   }
 
   getFill(): string {
@@ -54,19 +77,19 @@ abstract class SvgRenderer extends GeometryRenderer {
     return (this.rendererParams["stroke"] as string) || "black";
   }
 
-  getSvgTagStart(viewPort = "0 0 100 100") {
-    return `<svg viewBox="${viewPort}" xmlns="http://www.w3.org/2000/svg">`;
+  getStrokeWidth(): string {
+    return (this.rendererParams["stroke-width"] as string) || "0.1";
   }
 
   getGlobalAttrs(): string {
-    return `fill="${this.getFill()}" stroke="${this.getStroke()}"`;
+    return `fill="${this.getFill()}" stroke-width="${this.getStrokeWidth()}" stroke="${this.getStroke()}"`;
   }
 }
 
 /**
  * Shapes centered around (cx, cy), such as circle or ellipse
  */
-abstract class CenteredRenderer extends SvgRenderer {
+abstract class CenteredRenderer extends ShapeRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
@@ -77,13 +100,13 @@ abstract class CenteredRenderer extends SvgRenderer {
 
   getCx(): string {
     return (
-      (this.rendererParams["cx"] as string) || this.getViewBoxCenter().x + ""
+      (this.rendererParams["cx"] as string) || (defaultViewBoxX / 2).toString()
     );
   }
 
   getCy(): string {
     return (
-      (this.rendererParams["cy"] as string) || this.getViewBoxCenter().y + ""
+      (this.rendererParams["cy"] as string) || (defaultViewBoxY / 2).toString()
     );
   }
 
@@ -95,7 +118,7 @@ abstract class CenteredRenderer extends SvgRenderer {
   }
 }
 
-abstract class PolyRenderer extends SvgRenderer {
+abstract class PolyRenderer extends ShapeRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
@@ -119,7 +142,7 @@ abstract class PolyRenderer extends SvgRenderer {
 /**
  * Shapes starting from (x, y) corner
  */
-abstract class XyRenderer extends SvgRenderer {
+abstract class XyRenderer extends ShapeRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
@@ -155,9 +178,7 @@ class CircleRenderer extends CenteredRenderer {
   }
 
   renderOpening(): string {
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<circle r="${this.getR()}" ${this.getGlobalAttrs()}/>`;
+    return `<circle r="${this.getR()}" ${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -171,17 +192,19 @@ class EllipseRenderer extends CenteredRenderer {
   }
 
   getRx(): string {
-    return (this.rendererParams["rx"] as string) || "100";
+    return (
+      (this.rendererParams["rx"] as string) || (defaultViewBoxX / 2).toString()
+    );
   }
 
   getRy(): string {
-    return (this.rendererParams["ry"] as string) || "50";
+    return (
+      (this.rendererParams["ry"] as string) || (defaultViewBoxY / 2).toString()
+    );
   }
 
   renderOpening(): string {
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<ellipse rx="${this.getRx()}" ry="${this.getRy()}" ${this.getGlobalAttrs()}/>`;
+    return `<ellipse rx="${this.getRx()}" ry="${this.getRy()}" ${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -195,9 +218,7 @@ class PolygonRenderer extends PolyRenderer {
   }
 
   renderOpening(): string {
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<polygon ${this.getGlobalAttrs()}/>`;
+    return `<polygon ${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -211,9 +232,7 @@ class PolylineRenderer extends PolyRenderer {
   }
 
   renderOpening(): string {
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<polyline ${this.getGlobalAttrs()}/>`;
+    return `<polyline ${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -235,9 +254,7 @@ class RectRenderer extends XyRenderer {
   }
 
   renderOpening(): string {
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<rect width="${this.getWidth()}" height="${this.getHeight()}" ${this.getGlobalAttrs()}/>`;
+    return `<rect width="${this.getWidth()}" height="${this.getHeight()}" ${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -251,11 +268,15 @@ class RhombusRenderer extends CenteredRenderer {
   }
 
   getP(): string {
-    return (this.rendererParams["p"] as string) || "50";
+    return (
+      (this.rendererParams["p"] as string) || (defaultViewBoxX / 2).toString()
+    );
   }
 
   getQ(): string {
-    return (this.rendererParams["q"] as string) || "100";
+    return (
+      (this.rendererParams["q"] as string) || (defaultViewBoxY / 2).toString()
+    );
   }
 
   renderOpening(): string {
@@ -266,9 +287,7 @@ class RhombusRenderer extends CenteredRenderer {
     const points = `${x},${y + q / 2} ${x + p / 2},${y} ${x},${y - q / 2} ${
       x - p / 2
     },${y}`;
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<polygon points="${points}" ${this.getGlobalAttrs(false)}/>`;
+    return `<polygon points="${points}" ${this.getGlobalAttrs(false)}/>`;
   }
 }
 
@@ -286,9 +305,7 @@ class SquareRenderer extends XyRenderer {
   }
 
   renderOpening(): string {
-    return `${this.getSvgTagStart(
-      this.getViewBox()
-    )}<rect width="${this.getSide()}" height="${this.getSide()}" ${this.getGlobalAttrs()}/>`;
+    return `<rect width="${this.getSide()}" height="${this.getSide()}" ${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -300,4 +317,5 @@ export const renderers: QuizMdRenderers = {
   rect: RectRenderer,
   rhombus: RhombusRenderer,
   square: SquareRenderer,
+  svg: SvgRenderer,
 };

@@ -14,7 +14,7 @@ class MMChoiceRenderer extends QuizMdRenderer {
   }
 
   renderOpening(): string {
-    return `<div class="quizmd-multiple-choice-mchoice">${this.rendererParams["content"]}`;
+    return `<div class="quizmd-multiple-choice-mmchoice">${this.rendererParams["content"]}`;
   }
 
   renderClosing(): string {

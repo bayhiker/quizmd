@@ -10,19 +10,25 @@ const renderIt = async (name: string, rendererParams: RendererParams) => {
     rendererParams
   ).render();
 };
+const globalAttrs = 'fill="none" stroke-width="0.1" stroke="black"';
 
 describe("quizmd-plugin-geometry", () => {
-  test("circle", async () => {
-    const htmlSvg = await renderIt("circle", { r: "50" });
+  test("svg", async () => {
+    const htmlSvg = await renderIt("svg", { viewPort: "0 0 100 100" });
     expect(htmlSvg).toEqual(
-      `<svg viewBox="0, 0, 100, 100" xmlns="http://www.w3.org/2000/svg"><circle r="50" cx="50" cy="50" fill="none" stroke="black"/></svg>`
+      `<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"></svg>`
     );
   });
 
+  test("circle", async () => {
+    const htmlSvg = await renderIt("circle", { r: "3" });
+    expect(htmlSvg).toEqual(`<circle r="3" cx="5" cy="5" ${globalAttrs}/>`);
+  });
+
   test("ellipse", async () => {
-    const htmlSvg = await renderIt("ellipse", { rx: "50", ry: "100" });
+    const htmlSvg = await renderIt("ellipse", { rx: "5", ry: "10" });
     expect(htmlSvg).toEqual(
-      `<svg viewBox="0, 0, 100, 100" xmlns="http://www.w3.org/2000/svg"><ellipse rx="50" ry="100" cx="50" cy="50" fill="none" stroke="black"/></svg>`
+      `<ellipse rx="5" ry="10" cx="5" cy="5" ${globalAttrs}/>`
     );
   });
 
@@ -31,7 +37,7 @@ describe("quizmd-plugin-geometry", () => {
       points: "0,0 100,100 100,200 0,100",
     });
     expect(htmlSvg).toEqual(
-      `<svg ${sharedSvg}><polygon points="0,0 100,100 100,200 0,100" fill="none" stroke="black"/></svg>`
+      `<polygon points="0,0 100,100 100,200 0,100" ${globalAttrs}/>`
     );
   });
 
@@ -46,7 +52,7 @@ describe("quizmd-plugin-geometry", () => {
       points: "0,0 100,100 100,200 0,100",
     });
     expect(htmlSvg).toEqual(
-      `<svg ${sharedSvg}><polyline points="0,0 100,100 100,200 0,100" fill="none" stroke="black"/></svg>`
+      `<polyline points="0,0 100,100 100,200 0,100" ${globalAttrs}/>`
     );
   });
 
@@ -56,21 +62,21 @@ describe("quizmd-plugin-geometry", () => {
       height: "50",
     });
     expect(htmlSvg).toEqual(
-      `<svg ${sharedSvg}><rect width="100" height="50" x="0" y="0" fill="none" stroke="black"/></svg>`
+      `<rect width="100" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
   test("rhombus", async () => {
-    const htmlSvg = await renderIt("rhombus", { p: "50", q: "100" });
+    const htmlSvg = await renderIt("rhombus", { p: "5", q: "10" });
     expect(htmlSvg).toEqual(
-      `<svg ${sharedSvg}><polygon points="50,100 75,50 50,0 25,50" fill="none" stroke="black"/></svg>`
+      `<polygon points="5,10 7.5,5 5,0 2.5,5" ${globalAttrs}/>`
     );
   });
 
   test("square", async () => {
     const htmlSvg = await renderIt("square", { side: "100" });
     expect(htmlSvg).toEqual(
-      `<svg ${sharedSvg}><rect width="100" height="100" x="0" y="0" fill="none" stroke="black"/></svg>`
+      `<rect width="100" height="100" x="0" y="0" ${globalAttrs}/>`
     );
   });
 });
