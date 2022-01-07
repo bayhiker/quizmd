@@ -1,10 +1,33 @@
 {
-  "main": "dist/quizmd.js",
-  "module": "dist/quizmd.mjs",
-  "typings": "dist/quizmd.d.ts",
+  "private": true,
+  "name": "quizmd",
+  "version": "0.0.3",
+  "description": "Use markdown format to author quiz questions",
+  "author": "Mike Y.",
+  "homepage": "https://github.com/bayhiker/quizmd",
+  "license": "MIT",
+  "keywords": [
+    "quizmd",
+    "markdown"
+  ],
+  "browser": "quizmd.js",
+  "main": "quizmd.cjs.js",
+  "module": "quizmd.esm.js",
+  "typings": "quizmd.d.ts",
+  "files": [
+    "quizmd.cjs.js",
+    "quizmd.esm.js",
+    "quizmd.cjs.js.map",
+    "quizmd.esm.js.map",
+    "samples.html",
+    "quizmd.d.ts",
+    "quizmd.js"
+  ],
   "scripts": {
-    "build": "rollup -c",
-    "test": "jest"
+    "build": "npm run prebuild && rollup -c",
+    "test": "jest",
+    "test:cov": "jest --coverage",
+    "prebuild": "rm -rf dist && mkdir dist && sed '/^\\s*\"private.*true/d' ./package.json > ./dist/package.json && cp README.md LICENSE docs/samples.html ./dist"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

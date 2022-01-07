@@ -1,7 +1,6 @@
 import dts from "rollup-plugin-dts";
 import esbuild from "rollup-plugin-esbuild";
-
-const name = require("./package.json").main.replace(/\.js$/, "");
+import pkg from "./package.json";
 
 const bundle = (config) => ({
   ...config,
@@ -14,22 +13,27 @@ export default [
     plugins: [esbuild()],
     output: [
       {
-        file: `${name}.js`,
+        file: `dist/${pkg.main}`,
         format: "cjs",
         sourcemap: true,
         exports: "default",
       },
       {
-        file: `${name}.mjs`,
+        file: `dist/${pkg.module}`,
         format: "es",
         sourcemap: true,
+      },
+      {
+        file: `dist/${pkg.browser}`,
+        name: pkg.name,
+        format: "iife",
       },
     ],
   }),
   bundle({
     plugins: [dts()],
     output: {
-      file: `${name}.d.ts`,
+      file: `dist/${pkg.typings}`,
       format: "es",
     },
   }),

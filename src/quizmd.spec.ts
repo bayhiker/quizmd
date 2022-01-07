@@ -7,6 +7,15 @@ describe("QuizMd Test", () => {
     expect(Object.keys(renderers).length).toEqual(11);
   });
 
+  test("parse", async () => {
+    const { parse } = quizmd;
+    const parsedContent = await parse(["square: side=10"]);
+    const regExp = new RegExp(
+      '^.*?<rect width="10" height="10" x="0" y="0" .*?/>.*$'
+    );
+    expect(parsedContent).toMatch(regExp);
+  });
+
   it("do not render if startOnLoad is set to false", function () {
     quizmd.startOnLoad = false;
     document.body.innerHTML = `<div class='.quizmd'>square: side=10</div>`;
