@@ -1,15 +1,15 @@
 import quizmd from "./quizmd";
 
 describe("QuizMd Test", () => {
-  test("getRenderers", async () => {
+  test("getRenderers", () => {
     const { getAllRenderers } = quizmd;
-    const renderers = await getAllRenderers();
+    const renderers = getAllRenderers();
     expect(Object.keys(renderers).length).toEqual(11);
   });
 
   test("parse", async () => {
     const { parse } = quizmd;
-    const parsedContent = await parse(["square: side=10"]);
+    const parsedContent = parse(["square: side=10"]);
     const regExp = new RegExp(
       '^.*?<rect width="10" height="10" x="0" y="0" .*?/>.*$'
     );

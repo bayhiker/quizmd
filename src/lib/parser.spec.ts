@@ -9,11 +9,11 @@ const allRenderers: QuizMdRenderers = QuizMdParser.getAllRenderers();
 const globalAttrs = 'fill="none" stroke-width="0.1" stroke="black"';
 
 describe("QuizMdParser Unit Test", () => {
-  test("No compilation error", async () => {
+  test("No compilation error", () => {
     const quizMdParser = new QuizMdParser({});
     const element = document.createElement("div");
     element.appendChild(document.createTextNode("square: r=10"));
-    await quizMdParser.parseNode(element);
+    quizMdParser.parseNode(element);
     const regExp = new RegExp(
       '^.*?<rect width="100" height="100" x="0" y="0" .*?></rect>.*$'
     );
@@ -29,7 +29,7 @@ describe("QuizMdParser Unit Test", () => {
     expect(extractedConfig["c"] as number).toEqual("15");
   });
 
-  test("parseNode, processed tag", async () => {
+  test("parseNode, processed tag", () => {
     const quizMdParser = new QuizMdParser({});
     const processedTag = quizMdParser.config["processedFlagAttrName"] as string;
     const element = document.createElement("div");
@@ -37,29 +37,29 @@ describe("QuizMdParser Unit Test", () => {
     // Make sure element is not processed because processed attr was set
     element.appendChild(document.createTextNode("square: side=10"));
     element.setAttribute(processedTag, "true");
-    await quizMdParser.parseNode(element);
+    quizMdParser.parseNode(element);
     expect(element.innerHTML).toEqual("square: side=10");
 
     element.removeAttribute(processedTag);
-    await quizMdParser.parseNode(element);
+    quizMdParser.parseNode(element);
     expect(element.innerHTML).toMatch(
       `<rect width="10" height="10" x="0" y="0" ${globalAttrs}></rect>`
     );
     expect(element.getAttribute(processedTag)).toBeTruthy();
   });
 
-  test("parser, parse node list", async () => {
+  test("parser, parse node list", () => {
     const quizMdParser = new QuizMdParser({});
     const elementSquare = document.createElement("div");
     elementSquare.appendChild(document.createTextNode("square: side=10"));
     const elementCircle = document.createElement("div");
     elementCircle.appendChild(document.createTextNode("circle: r=10"));
-    await quizMdParser.parseNodeList([elementSquare, elementCircle]);
+    quizMdParser.parseNodeList([elementSquare, elementCircle]);
     expect(elementSquare.innerHTML).toMatch(/<rect/);
     expect(elementCircle.innerHTML).toMatch(/<circle/);
   });
 
-  test("parser, parse container", async () => {
+  test("parser, parse container", () => {
     const quizMdParser = new QuizMdParser({});
     const element = document.createElement("div");
     const elementSquare = document.createElement("div");
@@ -70,12 +70,12 @@ describe("QuizMdParser Unit Test", () => {
     elementCircle.className = "quizmd";
     elementCircle.appendChild(document.createTextNode("circle: r=10"));
     element.appendChild(elementCircle);
-    await quizMdParser.parseContainer(element);
+    quizMdParser.parseContainer(element);
     expect(elementSquare.innerHTML).toMatch(/<rect/);
     expect(elementCircle.innerHTML).toMatch(/<circle/);
   });
 
-  test("parser, parse with callback", async () => {
+  test("parser, parse with callback", () => {
     const spy = jest.spyOn(console, "log").mockImplementation();
     const quizMdParser = new QuizMdParser({});
     const element = document.createElement("div");
@@ -83,7 +83,7 @@ describe("QuizMdParser Unit Test", () => {
     elementSquare.className = "quizmd";
     elementSquare.appendChild(document.createTextNode("square: side=10"));
     element.appendChild(elementSquare);
-    await quizMdParser.parseContainer(element, ".quizmd", (id: string) => {
+    quizMdParser.parseContainer(element, ".quizmd", (id: string) => {
       console.log(`test id is ${id}`);
     });
     expect(elementSquare.innerHTML).toMatch(/<rect/);
@@ -91,7 +91,7 @@ describe("QuizMdParser Unit Test", () => {
     spy.mockRestore();
   });
 
-  test("parseNode, with custom config", async () => {
+  test("parseNode, with custom config", () => {
     const quizMdParser = new QuizMdParser({});
     const element = document.createElement("div");
     const customAttr = "quizmd-customized-attr";
@@ -99,24 +99,22 @@ describe("QuizMdParser Unit Test", () => {
       document.createTextNode(`%%{config: processedFlagAttrName="${customAttr}"}%%
     square: side=10`)
     );
-    await quizMdParser.parseNode(element);
+    quizMdParser.parseNode(element);
     expect(element.innerHTML).toMatch(/<rect/);
     expect(element.getAttribute(customAttr)).toBeTruthy();
   });
 });
 
 describe("renderer", () => {
-  test("parseContent, regular single line", async () => {
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
-      `square: side=50`,
-    ]);
+  test("parseContent, regular single line", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [`square: side=50`]);
     expect(s).toMatch(
       `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
-  test("parseContent, line ends with backslash", async () => {
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
+  test("parseContent, line ends with backslash", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [
       "square: \\",
       "side=50",
     ]);
@@ -125,17 +123,15 @@ describe("renderer", () => {
     );
   });
 
-  test("parseContent, with key:-", async () => {
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
-      `square:- some text`,
-    ]);
+  test("parseContent, with key:-", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [`square:- some text`]);
     expect(s).toMatch(
       `<rect width="100" height="100" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
-  test("parseContent, indention key:-", async () => {
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
+  test("parseContent, indention key:-", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [
       "square: side=50",
       "  rect: width=30 height=50",
     ]);
@@ -147,9 +143,9 @@ describe("renderer", () => {
     );
   });
 
-  test("parserContent, invalid renderer", async () => {
+  test("parserContent, invalid renderer", () => {
     const spy = jest.spyOn(console, "warn").mockImplementation();
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseContent(allRenderers, [
       "this-renderer-does-not-exist: x=5",
     ]);
     expect(spy).toHaveBeenCalled();
@@ -157,8 +153,8 @@ describe("renderer", () => {
     spy.mockRestore();
   });
 
-  test("parseContent, two entity lines", async () => {
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
+  test("parseContent, two entity lines", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [
       "square: side=50",
       "rect: width=30 height=50",
     ]);
@@ -170,7 +166,7 @@ describe("renderer", () => {
     );
   });
 
-  test("QuizMdRenderer, render() not defined", async () => {
+  test("QuizMdRenderer, render() not defined", () => {
     class RendererMissingRenderStartingFunction extends QuizMdRenderer {
       constructor(
         allRenderers: QuizMdRenderers,
@@ -184,14 +180,14 @@ describe("renderer", () => {
       allRenderers,
       {}
     );
-    await expect(async () => {
-      await renderer.render();
-    }).rejects.toThrow();
+    expect(() => {
+      renderer.render();
+    }).toThrow();
   });
 
-  test("parserContent, renderer with no config, improve coverage for parseContent", async () => {
+  test("parserContent, renderer with no config, improve coverage for parseContent", () => {
     const spy = jest.spyOn(console, "warn").mockImplementation();
-    const s = await QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseContent(allRenderers, [
       "this-renderer-does-not-exist-and-has-no-config",
     ]);
     expect(spy).toHaveBeenCalled();

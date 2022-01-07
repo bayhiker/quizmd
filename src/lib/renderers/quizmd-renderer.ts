@@ -33,8 +33,8 @@ export class QuizMdRenderer {
     throw new Error("Renderer must define renderOpening() method");
   }
 
-  async render(): Promise<string> {
-    return `${this.renderOpening()}${await QuizMdRenderer.parseContent(
+  render(): string {
+    return `${this.renderOpening()}${QuizMdRenderer.parseContent(
       this.allRenderers,
       this.contentLines
     )}${this.renderClosing()}`;
@@ -52,10 +52,7 @@ export class QuizMdRenderer {
     return s.substring(0, s.search(/[^\s]/)).length;
   }
 
-  static async parseContent(
-    renderers: QuizMdRenderers,
-    lines: string[]
-  ): Promise<string> {
+  static parseContent(renderers: QuizMdRenderers, lines: string[]): string {
     if (!lines || lines.length == 0) {
       return "";
     }
@@ -87,7 +84,7 @@ export class QuizMdRenderer {
         if (currentEntityName !== "") {
           // The entity in currentLine is not the first entity, render previous entity
           // before starting a new one
-          parsedText += await this.renderCurrentEntity(
+          parsedText += this.renderCurrentEntity(
             renderers,
             currentEntityName,
             currentEntityConfig,
@@ -115,7 +112,7 @@ export class QuizMdRenderer {
     }
     // Render last entity if it's not empty
     if (currentEntityName !== "") {
-      parsedText += await this.renderCurrentEntity(
+      parsedText += this.renderCurrentEntity(
         renderers,
         currentEntityName,
         currentEntityConfig,
@@ -125,12 +122,12 @@ export class QuizMdRenderer {
     return parsedText;
   }
 
-  static async renderCurrentEntity(
+  static renderCurrentEntity(
     renderers: QuizMdRenderers,
     currentEntityName: string,
     currentEntityConfig: RendererParams,
     currentEntityContent: string[]
-  ): Promise<string> {
+  ): string {
     if (currentEntityName === "") {
       return "";
     }
@@ -149,7 +146,7 @@ export class QuizMdRenderer {
         currentEntityConfig,
         currentEntityContent
       );
-      return await renderer.render();
+      return renderer.render();
     }
   }
 }

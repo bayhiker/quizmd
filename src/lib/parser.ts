@@ -38,7 +38,7 @@ class QuizMdParser {
     }
   }
 
-  async parseNode(element: Element, callback?: ParserCallback) {
+  parseNode(element: Element, callback?: ParserCallback) {
     const elementText = new DOMParser()
       .parseFromString(element.innerHTML, "text/html")
       .documentElement.textContent?.trim() as string;
@@ -58,7 +58,7 @@ class QuizMdParser {
     const id = `quizmd-${Math.random().toString(36).substr(2, 9)}}`;
 
     try {
-      element.innerHTML = await QuizMdRenderer.parseContent(
+      element.innerHTML = QuizMdRenderer.parseContent(
         this.allRenderers,
         elementText.split(/[\r\n]+/)
       );
@@ -70,9 +70,9 @@ class QuizMdParser {
     }
   }
 
-  async parseNodeList(nodes: Element[], callback?: ParserCallback) {
+  parseNodeList(nodes: Element[], callback?: ParserCallback) {
     for (let i = 0; i < nodes?.length; i++) {
-      await this.parseNode(nodes[i], callback);
+      this.parseNode(nodes[i], callback);
     }
   }
 
@@ -81,12 +81,12 @@ class QuizMdParser {
    *
    * @param nodes - a css selector, e.g. ".quizmd", a node, or an array of nodes
    */
-  async parseContainer(
+  parseContainer(
     htmlElement: HTMLElement,
     cssSelector = ".quizmd",
     callback?: ParserCallback
   ) {
-    await this.parseNodeList(
+    this.parseNodeList(
       [].slice.call(htmlElement.querySelectorAll(cssSelector)),
       callback
     );
