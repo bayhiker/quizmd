@@ -113,6 +113,17 @@ describe("renderer", () => {
     );
   });
 
+  test("parseContent, with svg", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [
+      "svg",
+      `  square: side=50`,
+    ]);
+    expect(s).toMatch(`svg`);
+    expect(s).toMatch(
+      `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
+    );
+  });
+
   test("parseContent, line ends with backslash", () => {
     const s = QuizMdRenderer.parseContent(allRenderers, [
       "square: \\",
