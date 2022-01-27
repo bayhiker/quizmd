@@ -1,3 +1,4 @@
+import parseKatex from "../util/katex";
 import {
   QuizMdRenderer,
   QuizMdRenderers,
@@ -14,7 +15,9 @@ class MMChoiceRenderer extends QuizMdRenderer {
   }
 
   renderOpening(): string {
-    return `<div class="quizmd-multiple-choice-mmchoice">${this.rendererParams["content"]}`;
+    return `<div class="quizmd-multiple-choice-mmchoice">
+    ${parseKatex(["" + this.rendererParams["content"]])}
+    ${QuizMdRenderer.parseContent(this.allRenderers, this.contentLines)}`;
   }
 
   renderClosing(): string {
@@ -32,7 +35,12 @@ class MChoiceRenderer extends QuizMdRenderer {
   }
 
   renderOpening(): string {
-    return `<div class="quizmd-multiple-choice-mchoice">${this.rendererParams["content"]}<ol type="A">`;
+    return `<div class="quizmd-multiple-choice-mchoice">
+    ${parseKatex(["" + this.rendererParams["content"]])}
+    ${QuizMdRenderer.parseContent(
+      this.allRenderers,
+      this.contentLines
+    )}<ol type="A">`;
   }
 
   renderClosing(): string {
@@ -50,7 +58,14 @@ class AlternativeRenderer extends QuizMdRenderer {
   }
 
   renderOpening(): string {
-    return `<li class="quizmd-multiple-choice-alternative">${this.rendererParams["content"]}`;
+    // alternative :- content
+    // or
+    // alternative:
+    //     content line 1
+    //     content line 2
+    return `<li class="quizmd-multiple-choice-alternative"> 
+     ${parseKatex(["" + this.rendererParams["content"]])}
+     ${QuizMdRenderer.parseContent(this.allRenderers, this.contentLines)}`;
   }
 
   renderClosing(): string {

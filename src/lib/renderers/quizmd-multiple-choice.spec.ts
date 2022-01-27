@@ -11,15 +11,15 @@ const renderIt = (name: string, rendererParams: RendererParams) => {
 describe("quizmd-plugin-multiple-choice", () => {
   test("alternative", () => {
     const html = renderIt("alternative", { content: "Alternative A" });
-    expect(html).toEqual(
-      `<li class="quizmd-multiple-choice-alternative">Alternative A</li>`
+    expect(html).toMatch(
+      /<li class="quizmd-multiple-choice-alternative">[^]*?Alternative A[^]*?<\/li>/
     );
   });
 
   test("mchoice", () => {
     const html = renderIt("mchoice", { content: "Multiple Choice" });
-    expect(html).toEqual(
-      `<div class="quizmd-multiple-choice-mchoice">Multiple Choice<ol type="A"></ol></div>`
+    expect(html).toMatch(
+      /<div class="quizmd-multiple-choice-mchoice">[^]*?Multiple Choice[^]*?<ol type="A"><\/ol><\/div>/
     );
   });
 
@@ -27,8 +27,15 @@ describe("quizmd-plugin-multiple-choice", () => {
     const html = renderIt("mmchoice", {
       content: "Multiple Multiple Choice",
     });
-    expect(html).toEqual(
-      `<div class="quizmd-multiple-choice-mmchoice">Multiple Multiple Choice</div>`
+    expect(html).toMatch(
+      /<div class="quizmd-multiple-choice-mmchoice">[^]*?Multiple Multiple Choice[^]*?<\/div>/
     );
+  });
+
+  test("mchoice, render with single line katex expression", () => {
+    const html = renderIt("mmchoice", {
+      content: "alternative:- $\\frac{a}{b}$",
+    });
+    expect(html).toMatch(/katex-mathml/);
   });
 });

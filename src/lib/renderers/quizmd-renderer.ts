@@ -1,3 +1,4 @@
+import parseKatex from "../util/katex";
 import kvparse from "../util/kvparser";
 
 export type RendererParams = { [key: string]: unknown };
@@ -63,12 +64,16 @@ export class QuizMdRenderer {
     let currentEntityConfig: RendererParams = {};
     let currentEntityContent: string[] = [];
 
+    //parseKatex
+    lines = parseKatex(lines);
+
     let i = 0;
     // Skip all directive lines
     while (lines[i].match(/^\s*%%\{.*?\}%%\s*$/)) {
       //ignore directive lines such as %%{config: k1=v1 k2=v1}
       i++;
     }
+
     const entityIndentation = this.getIndentation(lines[i]);
     while (i < lines.length) {
       let currentLine: string = lines[i];
