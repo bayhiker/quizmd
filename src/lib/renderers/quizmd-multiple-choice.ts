@@ -5,6 +5,7 @@ import {
   RendererParams,
 } from "./quizmd-renderer";
 
+// One problem statement followed by a few multiple-choice questions
 class MMChoiceRenderer extends QuizMdRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
@@ -15,9 +16,9 @@ class MMChoiceRenderer extends QuizMdRenderer {
   }
 
   renderOpening(): string {
-    return `<div class="quizmd-multiple-choice-mmchoice">
-    ${parseKatex(["" + this.rendererParams["content"]])}
-    ${QuizMdRenderer.parseContent(this.allRenderers, this.contentLines)}`;
+    return `<div class="quizmd-multiple-choice-mmchoice">${parseKatex([
+      "" + this.rendererParams["content"],
+    ])}`;
   }
 
   renderClosing(): string {
@@ -25,6 +26,7 @@ class MMChoiceRenderer extends QuizMdRenderer {
   }
 }
 
+// One problem statement/question followed by a few alternatives
 class MChoiceRenderer extends QuizMdRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
@@ -35,12 +37,9 @@ class MChoiceRenderer extends QuizMdRenderer {
   }
 
   renderOpening(): string {
-    return `<div class="quizmd-multiple-choice-mchoice">
-    ${parseKatex(["" + this.rendererParams["content"]])}
-    ${QuizMdRenderer.parseContent(
-      this.allRenderers,
-      this.contentLines
-    )}<ol type="A">`;
+    return `<div class="quizmd-multiple-choice-mchoice">${parseKatex([
+      "" + this.rendererParams["content"],
+    ])}<ol type="I">`;
   }
 
   renderClosing(): string {
@@ -63,9 +62,9 @@ class AlternativeRenderer extends QuizMdRenderer {
     // alternative:
     //     content line 1
     //     content line 2
-    return `<li class="quizmd-multiple-choice-alternative"> 
-     ${parseKatex(["" + this.rendererParams["content"]])}
-     ${QuizMdRenderer.parseContent(this.allRenderers, this.contentLines)}`;
+    return `<li class="quizmd-multiple-choice-alternative">${parseKatex([
+      "" + this.rendererParams["content"],
+    ])}`;
   }
 
   renderClosing(): string {

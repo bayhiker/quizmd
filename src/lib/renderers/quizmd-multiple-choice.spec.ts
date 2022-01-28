@@ -1,4 +1,4 @@
-import { RendererParams } from "./quizmd-renderer";
+import { QuizMdRenderer, RendererParams } from "./quizmd-renderer";
 import { QuizMdParser } from "../parser";
 
 import { renderers as mchoiceRenderers } from "./quizmd-multiple-choice";
@@ -37,5 +37,18 @@ describe("quizmd-plugin-multiple-choice", () => {
       content: "alternative:- $\\frac{a}{b}$",
     });
     expect(html).toMatch(/katex-mathml/);
+  });
+
+  test("parseContent, mmchoice with multiple choice and multiple alternatives", () => {
+    const s = QuizMdRenderer.parseContent(allRenderers, [
+      "mmchoice :- main statement",
+      "  mchoice:- problem 1",
+      "    alternative:- alternative A",
+      "    alternative:- alternative B",
+      "  mchoice:- problem 2",
+      "    alternative:- alternative C",
+      "    alternative:- alternative D",
+    ]);
+    expect(s).toMatch("alternative");
   });
 });

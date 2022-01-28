@@ -23,7 +23,6 @@ function parseKatex(lines: string[]): string[] {
     } else if (lines[i].match(katexFenceLinePattern)) {
       //Start of a block katex
       let katexExp = "";
-      lines[i] = "";
       while (
         i + 1 < lines.length &&
         !lines[i + 1].match(katexFenceLinePattern)

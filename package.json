@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "quizmd",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Use markdown format to author quiz questions",
   "author": "Mike Y.",
   "homepage": "https://github.com/bayhiker/quizmd",

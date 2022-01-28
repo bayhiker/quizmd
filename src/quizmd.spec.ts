@@ -38,4 +38,18 @@ describe("QuizMd Test", () => {
     quizmd.contentLoaded();
     expect(quizmd.init).toHaveBeenCalled();
   });
+
+  it("render mmchoice with two problems", () => {
+    const { parse } = quizmd;
+    const parsedContent = parse([
+      "mmchoice:- This is the main statement for a few problems",
+      "  mchoice:-  Problem 1",
+      "    alternative:- Alternative 1",
+      "    alternative:- Alternative 2",
+      "  mchoice:-  Problem 2",
+      "    alternative:- Alternative 3",
+      "    alternative:- Alternative 4",
+    ]);
+    expect(parsedContent).toMatch("Problem");
+  });
 });
