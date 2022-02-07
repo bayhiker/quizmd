@@ -24,8 +24,10 @@ abstract class GeometryRenderer extends QuizMdRenderer {
   }
 }
 
-const defaultViewBoxX = 10;
-const defaultViewBoxY = 10;
+const defaultViewBoxX = 100;
+const defaultViewBoxY = 100;
+const defaultSvgWidth = "50px";
+const defaultSvgHeight = "50px";
 const defaultViewBox = `0 0 ${defaultViewBoxX} ${defaultViewBoxY}`;
 
 class SvgRenderer extends GeometryRenderer {
@@ -39,6 +41,14 @@ class SvgRenderer extends GeometryRenderer {
 
   getViewBox(): string {
     return (this.rendererParams["viewBox"] as string) || defaultViewBox;
+  }
+
+  getWidth(): string {
+    return (this.rendererParams["width"] as string) || defaultSvgWidth;
+  }
+
+  getHeight(): string {
+    return (this.rendererParams["height"] as string) || defaultSvgHeight;
   }
 
   getViewBoxCenter(): Point {
@@ -56,7 +66,7 @@ class SvgRenderer extends GeometryRenderer {
   }
 
   getSvgTagStart() {
-    return `<svg viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg">`;
+    return `<svg width="${this.getWidth()}" height="${this.getHeight()}" viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg">`;
   }
 }
 

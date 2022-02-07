@@ -11,21 +11,25 @@ const globalAttrs = 'fill="none" stroke-width="0.1" stroke="black"';
 
 describe("quizmd-plugin-geometry", () => {
   test("svg", () => {
-    const htmlSvg = renderIt("svg", { viewPort: "0 0 100 100" });
+    const htmlSvg = renderIt("svg", {
+      width: 30,
+      height: 40,
+      viewPort: "0 0 100 100",
+    });
     expect(htmlSvg).toEqual(
-      `<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"></svg>`
+      `<svg width="30" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"></svg>`
     );
   });
 
   test("circle", () => {
     const htmlSvg = renderIt("circle", { r: "3" });
-    expect(htmlSvg).toEqual(`<circle r="3" cx="5" cy="5" ${globalAttrs}/>`);
+    expect(htmlSvg).toEqual(`<circle r="3" cx="50" cy="50" ${globalAttrs}/>`);
   });
 
   test("ellipse", () => {
     const htmlSvg = renderIt("ellipse", { rx: "5", ry: "10" });
     expect(htmlSvg).toEqual(
-      `<ellipse rx="5" ry="10" cx="5" cy="5" ${globalAttrs}/>`
+      `<ellipse rx="5" ry="10" cx="50" cy="50" ${globalAttrs}/>`
     );
   });
 
@@ -64,7 +68,7 @@ describe("quizmd-plugin-geometry", () => {
   test("rhombus", () => {
     const htmlSvg = renderIt("rhombus", { p: "5", q: "10" });
     expect(htmlSvg).toEqual(
-      `<polygon points="5,10 7.5,5 5,0 2.5,5" ${globalAttrs}/>`
+      `<polygon points="50,55 52.5,50 50,45 47.5,50" ${globalAttrs}/>`
     );
   });
 

@@ -39,7 +39,7 @@ class MChoiceRenderer extends QuizMdRenderer {
   renderOpening(): string {
     return `<div class="quizmd-multiple-choice-mchoice">${parseKatex([
       "" + this.rendererParams["content"],
-    ])}<ol type="I">`;
+    ])}<ol type="A">`;
   }
 
   renderClosing(): string {
