@@ -40,7 +40,7 @@ describe("quizmd-plugin-multiple-choice", () => {
   });
 
   test("parseContent, mmchoice with multiple choice and multiple alternatives", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "mmchoice :- main statement",
       "  mchoice:- problem 1",
       "    alternative:- alternative A",
@@ -50,5 +50,26 @@ describe("quizmd-plugin-multiple-choice", () => {
       "    alternative:- alternative D",
     ]);
     expect(s).toMatch("alternative");
+  });
+
+  test("parseContent, with variable", () => {
+    const s = QuizMdRenderer.parseLines(allRenderers, [
+      "mchoice :- This has an integer {{300}}, yes",
+      "  alternative:- An alternative with float {{1.23}}, lets see.",
+    ]);
+    expect(s).toMatch(/(?<!\{)300(?!\{)/);
+  });
+
+  test("parseContent, with variable random", () => {
+    const s = QuizMdRenderer.parseLines(
+      allRenderers,
+      [
+        "mchoice :- This has an integer {{300}}, yes",
+        "  alternative:- An alternative with float {{1.23}}, lets see.",
+      ],
+      {},
+      { randomize: true }
+    );
+    expect(s).toMatch(/(?<!\{)\d+(?!\{)/);
   });
 });

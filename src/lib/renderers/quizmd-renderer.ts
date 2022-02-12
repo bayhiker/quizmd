@@ -1,8 +1,10 @@
 import parseKatex from "../util/katex";
 import kvparse from "../util/kvparser";
+import { QuizMdVariable, QuizMdVariables } from "./quizmd-variable";
 
 export type RendererParams = { [key: string]: unknown };
 export type QuizMdRenderers = { [name: string]: typeof QuizMdRenderer };
+export type QuizMdParserOptions = { [name: string]: any };
 
 // QuizMdRenderer must not be abstract or interface for dynamic instance creation to work
 // when rendering
@@ -13,16 +15,22 @@ export class QuizMdRenderer {
    */
   allRenderers: QuizMdRenderers = {};
   rendererParams: RendererParams;
-  contentLines: string[];
+  childLines: string[];
+  variables: QuizMdVariables = {};
+  options: QuizMdParserOptions = {};
 
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = [],
+    variables: QuizMdVariables = {},
+    options = {}
   ) {
     this.allRenderers = allRenderers;
     this.rendererParams = rendererParams;
-    this.contentLines = contentLines;
+    this.childLines = childLines;
+    this.variables = variables;
+    this.options = options;
   }
 
   /**
@@ -35,9 +43,11 @@ export class QuizMdRenderer {
   }
 
   render(): string {
-    return `${this.renderOpening()}${QuizMdRenderer.parseContent(
+    return `${this.renderOpening()}${QuizMdRenderer.parseLines(
       this.allRenderers,
-      this.contentLines
+      this.childLines,
+      this.variables,
+      this.options
     )}${this.renderClosing()}`;
   }
 
@@ -53,7 +63,12 @@ export class QuizMdRenderer {
     return s.substring(0, s.search(/[^\s]/)).length;
   }
 
-  static parseContent(renderers: QuizMdRenderers, lines: string[]): string {
+  static parseLines(
+    renderers: QuizMdRenderers,
+    lines: string[],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
+  ): string {
     if (!lines || lines.length == 0) {
       return "";
     }
@@ -62,7 +77,7 @@ export class QuizMdRenderer {
 
     let currentEntityName = "";
     let currentEntityConfig: RendererParams = {};
-    let currentEntityContent: string[] = [];
+    let currentEntityChildLines: string[] = [];
 
     //parseKatex
     const katexLines = parseKatex(lines);
@@ -86,7 +101,7 @@ export class QuizMdRenderer {
         ].trim()}`;
       }
       if (currentIndentation > entityIndentation) {
-        currentEntityContent.push(currentLine);
+        currentEntityChildLines.push(currentLine);
       } else {
         if (currentEntityName !== "") {
           // The entity in currentLine is not the first entity, render previous entity
@@ -95,10 +110,12 @@ export class QuizMdRenderer {
             renderers,
             currentEntityName,
             currentEntityConfig,
-            currentEntityContent
+            currentEntityChildLines,
+            { ...variables }, // Shallow copy variables to allow local variable stack for each entity
+            options
           );
           currentEntityConfig = {};
-          currentEntityContent = [];
+          currentEntityChildLines = [];
         }
         // This is the start of a new entity
         if (currentLine.search(/^\s*?[^\s]*?\s*?:-/) >= 0) {
@@ -124,7 +141,9 @@ export class QuizMdRenderer {
         renderers,
         currentEntityName,
         currentEntityConfig,
-        currentEntityContent
+        currentEntityChildLines,
+        { ...variables }, // shallow copy to allow local variables stack
+        options
       );
     }
     return parsedText;
@@ -134,10 +153,27 @@ export class QuizMdRenderer {
     renderers: QuizMdRenderers,
     currentEntityName: string,
     currentEntityConfig: RendererParams,
-    currentEntityContent: string[]
+    currentEntityChildLines: string[],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
   ): string {
     if (currentEntityName === "") {
       return "";
+    }
+    if (currentEntityConfig["content"]) {
+      // Process variables in content section
+      let content: string = currentEntityConfig["content"] as string;
+      const quizmdVarPattern = /(?<!\\){{(.*?)(?<!\\)}}/;
+      let match = content.match(quizmdVarPattern);
+      while (match) {
+        const varDefaultValue = match[1];
+        content = content.replace(
+          `{{${varDefaultValue}}}`,
+          this.getVariableValue(variables, varDefaultValue, options)
+        );
+        match = content.match(quizmdVarPattern);
+      }
+      currentEntityConfig["content"] = content;
     }
     const RendererClass = renderers[currentEntityName];
     if (!RendererClass) {
@@ -152,9 +188,27 @@ export class QuizMdRenderer {
       const renderer = new RendererClass(
         renderers,
         currentEntityConfig,
-        currentEntityContent
+        currentEntityChildLines,
+        variables,
+        options
       );
       return renderer.render();
+    }
+  }
+
+  static getVariableValue(
+    variables: QuizMdVariables,
+    defaultValueString: string,
+    options: QuizMdParserOptions
+  ) {
+    if (!(defaultValueString in variables)) {
+      variables[defaultValueString] = new QuizMdVariable(defaultValueString);
+    }
+    const variable = variables[defaultValueString];
+    if ("randomize" in options && options["randomize"]) {
+      return variable.getRandomValue();
+    } else {
+      return variable.defaultValue;
     }
   }
 }

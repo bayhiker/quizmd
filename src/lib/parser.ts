@@ -58,7 +58,7 @@ class QuizMdParser {
     const id = `quizmd-${Math.random().toString(36).substr(2, 9)}}`;
 
     try {
-      element.innerHTML = QuizMdRenderer.parseContent(
+      element.innerHTML = QuizMdRenderer.parseLines(
         this.allRenderers,
         elementText.split(/[\r\n]+/)
       );

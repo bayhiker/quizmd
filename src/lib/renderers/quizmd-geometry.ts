@@ -18,9 +18,9 @@ abstract class GeometryRenderer extends QuizMdRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 }
 
@@ -34,9 +34,9 @@ class SvgRenderer extends GeometryRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getViewBox(): string {
@@ -74,9 +74,9 @@ class ShapeRenderer extends GeometryRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getFill(): string {
@@ -103,9 +103,9 @@ abstract class CenteredRenderer extends ShapeRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getCx(): string {
@@ -132,9 +132,9 @@ abstract class PolyRenderer extends ShapeRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getPoints(): string {
@@ -156,9 +156,9 @@ abstract class XyRenderer extends ShapeRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getX(): string {
@@ -178,9 +178,9 @@ class CircleRenderer extends CenteredRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getR(): string {
@@ -196,9 +196,9 @@ class EllipseRenderer extends CenteredRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getRx(): string {
@@ -222,9 +222,9 @@ class PolygonRenderer extends PolyRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   renderOpening(): string {
@@ -236,9 +236,9 @@ class PolylineRenderer extends PolyRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   renderOpening(): string {
@@ -250,9 +250,9 @@ class RectRenderer extends XyRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getWidth(): string {
@@ -272,9 +272,9 @@ class RhombusRenderer extends CenteredRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getP(): string {
@@ -305,9 +305,9 @@ class SquareRenderer extends XyRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = []
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines);
   }
 
   getSide(): string {

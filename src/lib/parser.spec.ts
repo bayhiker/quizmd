@@ -107,14 +107,14 @@ describe("QuizMdParser Unit Test", () => {
 
 describe("renderer", () => {
   test("parseContent, regular single line", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [`square: side=50`]);
+    const s = QuizMdRenderer.parseLines(allRenderers, [`square: side=50`]);
     expect(s).toMatch(
       `<rect width="50" height="50" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
   test("parseContent, with svg", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "svg",
       `  square: side=50`,
     ]);
@@ -125,7 +125,7 @@ describe("renderer", () => {
   });
 
   test("parseContent, line ends with backslash", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "square: \\",
       "side=50",
     ]);
@@ -135,14 +135,14 @@ describe("renderer", () => {
   });
 
   test("parseContent, with key:-", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [`square:- some text`]);
+    const s = QuizMdRenderer.parseLines(allRenderers, [`square:- some text`]);
     expect(s).toMatch(
       `<rect width="100" height="100" x="0" y="0" ${globalAttrs}/>`
     );
   });
 
   test("parseContent, indention key:-", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "square: side=50",
       "  rect: width=30 height=50",
     ]);
@@ -156,7 +156,7 @@ describe("renderer", () => {
 
   test("parserContent, invalid renderer", () => {
     const spy = jest.spyOn(console, "warn").mockImplementation();
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "this-renderer-does-not-exist: x=5",
     ]);
     expect(spy).toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe("renderer", () => {
   });
 
   test("parseContent, two entity lines", () => {
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "square: side=50",
       "rect: width=30 height=50",
     ]);
@@ -182,9 +182,9 @@ describe("renderer", () => {
       constructor(
         allRenderers: QuizMdRenderers,
         rendererParams: RendererParams,
-        contentLines: string[] = []
+        childLines: string[] = []
       ) {
-        super(allRenderers, rendererParams, contentLines);
+        super(allRenderers, rendererParams, childLines);
       }
     }
     const renderer = new RendererMissingRenderStartingFunction(
@@ -198,7 +198,7 @@ describe("renderer", () => {
 
   test("parserContent, renderer with no config, improve coverage for parseContent", () => {
     const spy = jest.spyOn(console, "warn").mockImplementation();
-    const s = QuizMdRenderer.parseContent(allRenderers, [
+    const s = QuizMdRenderer.parseLines(allRenderers, [
       "this-renderer-does-not-exist-and-has-no-config",
     ]);
     expect(spy).toHaveBeenCalled();

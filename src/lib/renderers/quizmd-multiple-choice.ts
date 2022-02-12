@@ -1,18 +1,22 @@
 import parseKatex from "../util/katex";
 import {
+  QuizMdParserOptions,
   QuizMdRenderer,
   QuizMdRenderers,
   RendererParams,
 } from "./quizmd-renderer";
+import { QuizMdVariables } from "./quizmd-variable";
 
 // One problem statement followed by a few multiple-choice questions
 class MMChoiceRenderer extends QuizMdRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = [],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines, variables, options);
   }
 
   renderOpening(): string {
@@ -31,14 +35,17 @@ class MChoiceRenderer extends QuizMdRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = [],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines, variables, options);
   }
 
   renderOpening(): string {
+    let content = this.rendererParams["content"] || "";
     return `<div class="quizmd-multiple-choice-mchoice">${parseKatex([
-      "" + this.rendererParams["content"],
+      "" + content,
     ])}<ol type="A">`;
   }
 
@@ -51,9 +58,11 @@ class AlternativeRenderer extends QuizMdRenderer {
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
-    contentLines: string[] = []
+    childLines: string[] = [],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
   ) {
-    super(allRenderers, rendererParams, contentLines);
+    super(allRenderers, rendererParams, childLines, variables, options);
   }
 
   renderOpening(): string {

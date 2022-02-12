@@ -2,7 +2,14 @@
  * Interprets markdown-like quizmd syntax to understood by browsers: html/svg/css etc
  */
 import { QuizMdParser } from "./lib/parser";
-import { QuizMdRenderer } from "./lib/renderers/quizmd-renderer";
+import {
+  QuizMdParserOptions,
+  QuizMdRenderer,
+} from "./lib/renderers/quizmd-renderer";
+import {
+  QuizMdVariable,
+  QuizMdVariables,
+} from "./lib/renderers/quizmd-variable";
 
 /**
  * Goes through src/lib/renderer and "quizmd-plugin-xxx" in package.json
@@ -59,8 +66,17 @@ if (typeof document !== "undefined") {
 const quizmd = {
   startOnLoad: true,
   getAllRenderers: QuizMdParser.getAllRenderers,
-  parse: (content: string[]) =>
-    QuizMdRenderer.parseContent(QuizMdParser.getAllRenderers(), content),
+  parse: (
+    content: string[],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
+  ) =>
+    QuizMdRenderer.parseLines(
+      QuizMdParser.getAllRenderers(),
+      content,
+      variables,
+      options
+    ),
   init,
   contentLoaded,
 };
