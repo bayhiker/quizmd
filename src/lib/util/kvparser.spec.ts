@@ -1,4 +1,4 @@
-import kvparse from "./kvparser";
+import { kvparse } from "./kvparser";
 
 describe("kvparser", () => {
   test("kvparse, single flag", () => {

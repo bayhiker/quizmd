@@ -4,7 +4,7 @@ import pkg from "./package.json";
 
 const bundle = (config) => ({
   ...config,
-  input: "src/quizmd.ts",
+  input: "src/index.ts",
   external: (id) => !/^[./]/.test(id),
 });
 
@@ -16,7 +16,7 @@ export default [
         file: `dist/${pkg.main}`,
         format: "cjs",
         sourcemap: true,
-        exports: "default",
+        exports: "named",
       },
       {
         file: `dist/${pkg.module}`,

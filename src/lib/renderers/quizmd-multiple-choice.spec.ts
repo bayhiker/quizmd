@@ -72,4 +72,16 @@ describe("quizmd-plugin-multiple-choice", () => {
     );
     expect(s).toMatch(/(?<!\{)\d+(?!\{)/);
   });
+  test("parseContent, with variable inside katex", () => {
+    const s = QuizMdRenderer.parseLines(
+      allRenderers,
+      [
+        "mchoice :- This has an integer $\\frac{1}{{{300}}}$, yes",
+        "  alternative:- An alternative with float {{1.23}}, lets see.",
+      ],
+      {},
+      { randomize: true }
+    );
+    expect(s).toMatch(/(?<!\{)\d+(?!\{)/);
+  });
 });

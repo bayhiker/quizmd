@@ -21,7 +21,7 @@
     "quizmd.esm.js.map",
     "samples.html",
     "quizmd.d.ts",
-    "quizmd.js"
+    "index.js"
   ],
   "scripts": {
     "build": "npm run prebuild && rollup -c",
@@ -33,6 +33,7 @@
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
     "@babel/preset-typescript": "^7.16.0",
+    "@rollup/plugin-typescript": "^8.3.0",
     "@types/jest": "^27.0.3",
     "esbuild": "^0.14.2",
     "jest": "^27.4.3",

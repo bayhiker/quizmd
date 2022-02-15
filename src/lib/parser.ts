@@ -3,7 +3,7 @@ import {
   QuizMdRenderers,
   RendererParams,
 } from "./renderers/quizmd-renderer";
-import kvparse from "./util/kvparser";
+import { kvparse } from "./util/kvparser";
 import { renderers as geometryRenderers } from "./renderers/quizmd-geometry";
 import { renderers as multipleChoiceRenderers } from "./renderers/quizmd-multiple-choice";
 

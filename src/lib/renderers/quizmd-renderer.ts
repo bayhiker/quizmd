@@ -1,5 +1,5 @@
 import parseKatex from "../util/katex";
-import kvparse from "../util/kvparser";
+import { kvparse } from "../util/kvparser";
 import { QuizMdVariable, QuizMdVariables } from "./quizmd-variable";
 
 export type RendererParams = { [key: string]: unknown };

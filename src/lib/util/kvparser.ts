@@ -1,3 +1,4 @@
+export type KvPairs = { [key: string]: unknown };
 /**
  * Parse key value pairs. Sample inputs:
  * k1=v1 k2=v2
@@ -11,17 +12,17 @@
  * @param s k=v pairs
  * @returns
  */
-function kvparse(s: string): { [key: string]: unknown } {
+export function kvparse(s: string): KvPairs {
   const result: { [key: string]: unknown } = {};
 
   let remainder = s,
-    prevWord = '',
-    currWord = '',
+    prevWord = "",
+    currWord = "",
     waitingForValue = false;
   while (remainder && remainder.length > 0) {
     [currWord, remainder] = findNextWord(remainder);
-    if (currWord === '=') {
-      if (prevWord === '') {
+    if (currWord === "=") {
+      if (prevWord === "") {
         console.warn(`Syntax error around ${currWord} before ${remainder}`);
       } else {
         waitingForValue = true;
@@ -31,17 +32,17 @@ function kvparse(s: string): { [key: string]: unknown } {
       if (waitingForValue) {
         result[prevWord] = currWord;
         waitingForValue = false;
-        prevWord = '';
+        prevWord = "";
       } else {
-        if (prevWord !== '') {
+        if (prevWord !== "") {
           result[prevWord] = true;
-          prevWord = '';
+          prevWord = "";
         }
         prevWord = currWord;
       }
     }
   }
-  if (prevWord !== '') {
+  if (prevWord !== "") {
     // Last item is a flag, add it to result
     result[prevWord] = true;
   }
@@ -49,11 +50,11 @@ function kvparse(s: string): { [key: string]: unknown } {
 }
 
 function findNextWord(s: string): string[] {
-  let word = '';
-  let remainder = '';
+  let word = "";
+  let remainder = "";
   s = s.trim();
-  if (s.startsWith('=')) {
-    word = '=';
+  if (s.startsWith("=")) {
+    word = "=";
     remainder = s.substring(1);
   } else if (s.startsWith('"')) {
     const match = s.match(/^"(.*?[^\\])".*$/);
@@ -77,15 +78,13 @@ function findNextWord(s: string): string[] {
       remainder = s.substring(word.length);
     }
   }
-  if (word === '') {
+  if (word === "") {
     throw new Error(`Wrong k-v string format for substring ${s}`);
   }
 
   word = word.replace(/\\"/g, '"');
   word = word.replace(/\\'/g, "'");
-  word = word.replace(/\\=/g, '=');
-  word = word.replace(/\\ /g, ' ');
+  word = word.replace(/\\=/g, "=");
+  word = word.replace(/\\ /g, " ");
   return [word, remainder];
 }
-
-export default kvparse;
