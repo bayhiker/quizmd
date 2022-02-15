@@ -1,5 +1,5 @@
 import { RendererParams } from "./quizmd-renderer";
-import { QuizMdParser } from "../parser";
+import { QuizMdParser } from "../..";
 import { renderers as geometryRenderers } from "./quizmd-geometry";
 
 const sharedSvg = 'viewBox="0, 0, 100, 100" xmlns="http://www.w3.org/2000/svg"';

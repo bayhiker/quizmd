@@ -12,7 +12,7 @@ import katex from "katex";
  * @param s k=v pairs
  * @returns
  */
-function parseKatex(lines: string[]): string[] {
+function processKatex(lines: string[]): string[] {
   const result: string[] = [];
   for (let i = 0; i < lines.length; i++) {
     // Replace katex expressions between $ signs, unless $ is prefixed by \\
@@ -50,4 +50,4 @@ function parseKatex(lines: string[]): string[] {
   return result;
 }
 
-export default parseKatex;
+export default processKatex;
