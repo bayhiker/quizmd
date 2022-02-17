@@ -3,6 +3,7 @@
     "esbuild",
     "iife",
     "katex",
+    "kvmerge",
     "kvparse",
     "kvparser",
     "mathml",

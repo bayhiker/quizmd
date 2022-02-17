@@ -1,4 +1,4 @@
-import { parseLines, RendererParams } from "./quizmd-renderer";
+import { parse, RendererParams } from "./quizmd-renderer";
 import { QuizMdParser } from "../..";
 
 import { renderers as mchoiceRenderers } from "./quizmd-multiple-choice";
@@ -40,7 +40,7 @@ describe("quizmd-plugin-multiple-choice", () => {
   });
 
   test("parseContent, mmchoice with multiple choice and multiple alternatives", () => {
-    const s = parseLines(allRenderers, [
+    const s = parse(allRenderers, [
       "mmchoice :- main statement",
       "  mchoice:- problem 1",
       "    alternative:- alternative A",
@@ -53,7 +53,7 @@ describe("quizmd-plugin-multiple-choice", () => {
   });
 
   test("parseContent, with variable", () => {
-    const s = parseLines(allRenderers, [
+    const s = parse(allRenderers, [
       "mchoice :- This has an integer {{300}}, yes",
       "  alternative:- An alternative with float {{1.23}}, lets see.",
     ]);
@@ -61,7 +61,7 @@ describe("quizmd-plugin-multiple-choice", () => {
   });
 
   test("parseContent, with variable random", () => {
-    const s = parseLines(
+    const s = parse(
       allRenderers,
       [
         "mchoice :- This has an integer {{300}}, yes",
@@ -73,7 +73,7 @@ describe("quizmd-plugin-multiple-choice", () => {
     expect(s).toMatch(/(?<!\{)\d+(?!\{)/);
   });
   test("parseContent, with variable inside katex", () => {
-    const s = parseLines(
+    const s = parse(
       allRenderers,
       [
         "mchoice :- This has an integer $\\frac{1}{{{300}}}$, yes",

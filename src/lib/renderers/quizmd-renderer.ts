@@ -24,7 +24,7 @@ export class QuizMdRenderer {
     rendererParams: RendererParams,
     childLines: string[] = [],
     variables: QuizMdVariables = {},
-    options = {}
+    options: QuizMdParserOptions = {}
   ) {
     this.allRenderers = allRenderers;
     this.rendererParams = rendererParams;
@@ -43,12 +43,39 @@ export class QuizMdRenderer {
   }
 
   render(): string {
-    return `${this.renderOpening()}${parseLines(
-      this.allRenderers,
+    const processedChildLines = processLines(
       this.childLines,
-      this.variables,
-      this.options
-    )}${this.renderClosing()}`;
+      this.options,
+      (
+        entityName: string,
+        entityConfig: RendererParams,
+        entityLine: string,
+        entityChildLines: string[]
+      ): string[] => {
+        if (entityName === "") {
+          return [];
+        }
+        const RendererClass = this.allRenderers[entityName];
+        if (!RendererClass) {
+          console.warn(`No renderer class found for !${entityName}!`);
+          return [];
+        } else {
+          console.debug(
+            `Rendering ${entityName} with config ${JSON.stringify(
+              entityConfig
+            )}`
+          );
+          const renderer = new RendererClass(
+            this.allRenderers,
+            entityConfig,
+            entityChildLines,
+            this.options
+          );
+          return [renderer.render()];
+        }
+      }
+    );
+    return `${this.renderOpening()}${processedChildLines}${this.renderClosing()}`;
   }
 
   /**
@@ -59,59 +86,92 @@ export class QuizMdRenderer {
   }
 }
 
-export function parseLines(
-  renderers: QuizMdRenderers,
-  lines: string[],
-  variables: QuizMdVariables = {},
-  options: QuizMdParserOptions = {}
-): string {
-  if (!lines || lines.length == 0) {
-    return "";
+// A special renderer for root quizmd lines
+class QuizMdRootRenderer extends QuizMdRenderer {
+  constructor(allRenderers: QuizMdRenderers, childLines: string[] = []) {
+    super(allRenderers, {}, childLines);
   }
 
-  let parsedText = "";
+  renderOpening(): string {
+    return "";
+  }
+}
 
+function processMultiLine(lines: string[]): string[] {
+  if (!lines || lines.length < 1) {
+    return [];
+  }
+  const processedLines: string[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    let currentLine = lines[i];
+    while (i < lines.length && lines[i].endsWith("\\")) {
+      i++;
+      // Do NOT trim currentLine, leading spaces are used to identify new entities
+      currentLine = `${currentLine.replace(/\\+$/, "")}${lines[i].trim()}`;
+    }
+    processedLines.push(currentLine);
+    i++;
+  }
+  return processedLines;
+}
+
+/**
+ * Generic method to process quizmd lines
+ *
+ * @param lines: QuizMD lines to process
+ * @param handleEntity: Callback method with actual processing logic.
+ *                      Callback input param is a dict of data the callback understands,
+ * @returns Processed lines
+ */
+function processLines(
+  lines: string[],
+  parserOptions: QuizMdParserOptions,
+  entityHandler: (
+    entityName: string,
+    entityConfig: RendererParams,
+    entityLine: string,
+    entityChildLines: string[]
+  ) => string[]
+) {
+  if (!lines || lines.length == 0) {
+    return [];
+  }
+  const processedLines: string[] = [];
   let currentEntityName = "";
   let currentEntityConfig: RendererParams = {};
   let currentEntityChildLines: string[] = [];
 
-  //parseKatex
-  const katexLines = processKatex(lines);
-
   let i = 0;
-  // Skip all directive lines
-  while (katexLines[i].match(/^\s*%%\{.*?\}%%\s*$/)) {
-    //ignore directive lines such as %%{config: k1=v1 k2=v1}
+  // Keep all directive lines as is
+  while (lines[i].match(/^\s*%%\{.*?\}%%\s*$/)) {
+    //ignore leading directive lines such as %%{config: k1=v1 k2=v1}
+    processedLines.push(lines[i]);
     i++;
   }
 
-  const entityIndentation = getIndentation(katexLines[i]);
-  while (i < katexLines.length) {
-    let currentLine: string = katexLines[i];
+  let entityLine: string = lines[i];
+  const entityIndentation = getIndentation(lines[i]);
+  while (i < lines.length) {
+    const currentLine = lines[i];
     const currentIndentation = getIndentation(currentLine);
-    // Do NOT trim currentLine, leading spaces are used to identify new entities
-    while (i < katexLines.length && katexLines[i].endsWith("\\")) {
-      i++;
-      currentLine = `${currentLine.replace(/\\+$/, "")} ${katexLines[
-        i
-      ].trim()}`;
-    }
     if (currentIndentation > entityIndentation) {
       currentEntityChildLines.push(currentLine);
     } else {
       if (currentEntityName !== "") {
         // The entity in currentLine is not the first entity, render previous entity
         // before starting a new one
-        parsedText += renderCurrentEntity(
-          renderers,
-          currentEntityName,
-          currentEntityConfig,
-          currentEntityChildLines,
-          { ...variables }, // Shallow copy variables to allow local variable stack for each entity
-          options
+        processedLines.push(
+          ...entityHandler(
+            currentEntityName,
+            currentEntityConfig,
+            entityLine,
+            currentEntityChildLines
+          )
         );
         currentEntityConfig = {};
         currentEntityChildLines = [];
+        entityLine = currentLine;
       }
       // This is the start of a new entity
       if (currentLine.search(/^\s*?[^\s]*?\s*?:-/) >= 0) {
@@ -133,63 +193,34 @@ export function parseLines(
   }
   // Render last entity if it's not empty
   if (currentEntityName !== "") {
-    parsedText += renderCurrentEntity(
-      renderers,
-      currentEntityName,
-      currentEntityConfig,
-      currentEntityChildLines,
-      { ...variables }, // shallow copy to allow local variables stack
-      options
+    processedLines.push(
+      ...entityHandler(
+        currentEntityName,
+        currentEntityConfig,
+        entityLine,
+        currentEntityChildLines
+      )
     );
   }
-  return parsedText;
+  return processedLines;
 }
 
-function renderCurrentEntity(
+export function parse(
   renderers: QuizMdRenderers,
-  currentEntityName: string,
-  currentEntityConfig: RendererParams,
-  currentEntityChildLines: string[],
+  lines: string[],
   variables: QuizMdVariables = {},
   options: QuizMdParserOptions = {}
 ): string {
-  if (currentEntityName === "") {
+  if (!lines || lines.length == 0) {
     return "";
   }
-  if (currentEntityConfig["content"]) {
-    // Process variables in content section
-    let content: string = currentEntityConfig["content"] as string;
-    const quizmdVarPattern = /(?<!\\){{(.*?)(?<!\\)}}/;
-    let match = content.match(quizmdVarPattern);
-    while (match) {
-      const varDefaultValue = match[1];
-      content = content.replace(
-        `{{${varDefaultValue}}}`,
-        getVariableValue(variables, varDefaultValue, options)
-      );
-      match = content.match(quizmdVarPattern);
-    }
-    currentEntityConfig["content"] = content;
-  }
-  const RendererClass = renderers[currentEntityName];
-  if (!RendererClass) {
-    console.warn(`No renderer class found for !${currentEntityName}!`);
-    return "";
-  } else {
-    console.debug(
-      `Rendering ${currentEntityName} with config ${JSON.stringify(
-        currentEntityConfig
-      )}`
-    );
-    const renderer = new RendererClass(
-      renderers,
-      currentEntityConfig,
-      currentEntityChildLines,
-      variables,
-      options
-    );
-    return renderer.render();
-  }
+
+  const mergedLines = processMultiLine(lines);
+  const translatedLines = processVariables(mergedLines, variables, options);
+  const katexLines = processKatex(translatedLines);
+  // TODO Process variables
+  const rootRenderer = new QuizMdRootRenderer(renderers, katexLines);
+  return rootRenderer.render();
 }
 
 function getIndentation(s: string): number {
@@ -197,21 +228,6 @@ function getIndentation(s: string): number {
   return s.substring(0, s.search(/[^\s]/)).length;
 }
 
-function getVariableValue(
-  variables: QuizMdVariables,
-  defaultValueString: string,
-  options: QuizMdParserOptions
-) {
-  if (!(defaultValueString in variables)) {
-    variables[defaultValueString] = new QuizMdVariable(defaultValueString);
-  }
-  const variable = variables[defaultValueString];
-  if ("randomize" in options && options["randomize"]) {
-    return variable.getRandomValue();
-  } else {
-    return variable.defaultValue;
-  }
-}
 /**
  * Process variables embedded in strings.
  *
@@ -238,6 +254,47 @@ function processVariables(
   variables: QuizMdVariables,
   parserOptions: QuizMdParserOptions
 ): string[] {
-  const result: string[] = [];
-  return result;
+  return processLines(
+    lines,
+    parserOptions,
+    (
+      entityName: string,
+      entityConfig: RendererParams,
+      entityLine: string,
+      entityChildLines: string[]
+    ): string[] => {
+      const translatedLines = [];
+      // Process variables in entityLine
+      const quizmdVarPattern = /(?<!\\){{([a-z\d\.\-\s]+?)(?<!\\)}}/i;
+      let match = entityLine.match(quizmdVarPattern);
+      while (match) {
+        const varDefaultValue = match[1];
+        entityLine = entityLine.replace(
+          `{{${varDefaultValue}}}`,
+          getVariableValue(variables, varDefaultValue, parserOptions)
+        );
+        match = entityLine.match(quizmdVarPattern);
+      }
+      return [
+        entityLine,
+        ...processVariables(entityChildLines, { ...variables }, parserOptions),
+      ];
+    }
+  );
+}
+
+function getVariableValue(
+  variables: QuizMdVariables,
+  defaultValueString: string,
+  options: QuizMdParserOptions
+) {
+  if (!(defaultValueString in variables)) {
+    variables[defaultValueString] = new QuizMdVariable(defaultValueString);
+  }
+  const variable = variables[defaultValueString];
+  if ("randomize" in options && options["randomize"]) {
+    return variable.getRandomValue();
+  } else {
+    return variable.defaultValue;
+  }
 }
