@@ -22,15 +22,14 @@ describe("quizmd-variable", () => {
         `${defaultValue}`
       );
       expect(v.defaultValue).toEqual(defaultValue);
-      const randomValue = v.getRandomValue();
+      const randomValue = v.randomValue;
       expect(randomValue).toBeGreaterThanOrEqual(lowerBound);
       expect(randomValue).toBeLessThanOrEqual(upperBound);
     }
   );
 
   test("Same number of decimal digits", () => {
-    const randomValue =
-      QuizMdVariable.fromDefaultValue("10.23").getRandomValue();
+    const randomValue = QuizMdVariable.fromDefaultValue("10.23").randomValue;
     expect((randomValue * 100) % 1).toBeLessThan(0.000001);
   });
 });

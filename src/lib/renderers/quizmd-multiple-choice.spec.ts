@@ -84,4 +84,35 @@ describe("quizmd-plugin-multiple-choice", () => {
     );
     expect(s).toMatch(/(?<!\{)\d+(?!\{)/);
   });
+
+  test("parseContent, with variable appearing in multiple places", () => {
+    const s = parse(
+      allRenderers,
+      [
+        "mchoice :- This has an integer $\\frac{1}{{{300}}}$, yes",
+        "  alternative:- An alternative with variable defined before {{300}}, lets see.",
+      ],
+      {},
+      { randomize: true }
+    );
+    const match = s.match(/frac\{1\}\{(\d+?)\}.*?defined before (\d+),/);
+    expect(match).toBeTruthy();
+    expect(match[1]).toEqual(match[2]);
+  });
+
+  test("parseContent, with variable appearing three time, twice inside latex", () => {
+    const s = parse(
+      allRenderers,
+      [
+        "mchoice :- Problem 1 <br> \\",
+        "$\\frac{3 \\times 5}{9 \\times {{11}}} \\times \\frac{7 \\times 9 \\times {{11}}}{3 \\times 5 \\times 7} $",
+        "  alternative :- 50",
+        "  alternative :- Answer is {{11}}.",
+      ],
+      {},
+      { randomize: true }
+    );
+    const match = s.match(/Answer is (\d+)\./);
+    expect(match).toBeTruthy();
+  });
 });

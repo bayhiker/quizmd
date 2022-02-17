@@ -45,14 +45,17 @@ export class QuizMdRenderer {
   render(): string {
     const processedChildLines = processLines(
       this.childLines,
-      this.options,
-      (
-        entityName: string,
-        entityConfig: RendererParams,
-        entityLine: string,
-        entityChildLines: string[]
-      ): string[] => {
-        if (entityName === "") {
+      (entityHandlerData: EntityHandlerData): string[] => {
+        const {
+          entityName,
+          entityConfig,
+          entityChildLines,
+        }: {
+          entityName: string;
+          entityConfig: RendererParams;
+          entityChildLines: string[];
+        } = entityHandlerData;
+        if (!entityName) {
           return [];
         }
         const RendererClass = this.allRenderers[entityName];
@@ -73,9 +76,13 @@ export class QuizMdRenderer {
           );
           return [renderer.render()];
         }
-      }
+      },
+      this.options,
+      this.variables
     );
-    return `${this.renderOpening()}${processedChildLines}${this.renderClosing()}`;
+    return `${this.renderOpening()}${processedChildLines.join(
+      ""
+    )}${this.renderClosing()}`;
   }
 
   /**
@@ -116,6 +123,28 @@ function processMultiLine(lines: string[]): string[] {
   return processedLines;
 }
 
+class EntityHandlerData {
+  entityName: string = "";
+  entityConfig: RendererParams = {};
+  entityLine: string = "";
+  entityChildLines: string[] = [];
+  variables: QuizMdVariables = {};
+  parserOptions: QuizMdParserOptions = {};
+
+  clear(): void {
+    this.entityName = "";
+    this.entityConfig = {};
+    this.entityLine = "";
+    this.entityChildLines = [];
+    this.variables = {};
+    this.parserOptions = {};
+  }
+
+  isSet(): boolean {
+    return this.entityName !== "";
+  }
+}
+
 /**
  * Generic method to process quizmd lines
  *
@@ -126,21 +155,17 @@ function processMultiLine(lines: string[]): string[] {
  */
 function processLines(
   lines: string[],
-  parserOptions: QuizMdParserOptions,
-  entityHandler: (
-    entityName: string,
-    entityConfig: RendererParams,
-    entityLine: string,
-    entityChildLines: string[]
-  ) => string[]
+  entityHandler: (handlerData: EntityHandlerData) => string[],
+  parserOptions: QuizMdParserOptions = {},
+  variables: QuizMdVariables = {}
 ) {
   if (!lines || lines.length == 0) {
     return [];
   }
   const processedLines: string[] = [];
-  let currentEntityName = "";
-  let currentEntityConfig: RendererParams = {};
-  let currentEntityChildLines: string[] = [];
+  const entityHandlerData = new EntityHandlerData();
+  entityHandlerData.variables = variables;
+  entityHandlerData.parserOptions = parserOptions;
 
   let i = 0;
   // Keep all directive lines as is
@@ -150,57 +175,45 @@ function processLines(
     i++;
   }
 
-  let entityLine: string = lines[i];
+  entityHandlerData.entityLine = lines[i];
   const entityIndentation = getIndentation(lines[i]);
   while (i < lines.length) {
     const currentLine = lines[i];
     const currentIndentation = getIndentation(currentLine);
     if (currentIndentation > entityIndentation) {
-      currentEntityChildLines.push(currentLine);
+      entityHandlerData.entityChildLines.push(currentLine);
     } else {
-      if (currentEntityName !== "") {
+      if (entityHandlerData.isSet()) {
         // The entity in currentLine is not the first entity, render previous entity
         // before starting a new one
-        processedLines.push(
-          ...entityHandler(
-            currentEntityName,
-            currentEntityConfig,
-            entityLine,
-            currentEntityChildLines
-          )
-        );
-        currentEntityConfig = {};
-        currentEntityChildLines = [];
-        entityLine = currentLine;
+        processedLines.push(...entityHandler(entityHandlerData));
+        entityHandlerData.clear();
       }
       // This is the start of a new entity
+      entityHandlerData.entityLine = currentLine;
       if (currentLine.search(/^\s*?[^\s]*?\s*?:-/) >= 0) {
         // renderer-name:- some-content, shortcut for renderer-name: content="text-till-end-of-line"
         const index = currentLine.search(/:-/);
-        currentEntityName = currentLine.substring(0, index).trim();
-        currentEntityConfig = { content: currentLine.substring(index + 2) };
+        entityHandlerData.entityName = currentLine.substring(0, index).trim();
+        entityHandlerData.entityConfig = {
+          content: currentLine.substring(index + 2),
+        };
       } else if (currentLine.search(/^\s*?[^\s]*?\s*?:/) >= 0) {
         // renderer-name: k-v pairs
         const index = currentLine.search(/:/);
-        currentEntityName = currentLine.substring(0, index).trim();
-        currentEntityConfig = kvparse(currentLine.substring(index + 2)) || {};
+        entityHandlerData.entityName = currentLine.substring(0, index).trim();
+        entityHandlerData.entityConfig =
+          kvparse(currentLine.substring(index + 2)) || {};
       } else {
         // No :- or :, then the whole line must be a renderer name
-        currentEntityName = currentLine;
+        entityHandlerData.entityName = currentLine;
       }
     }
     i++;
   }
   // Render last entity if it's not empty
-  if (currentEntityName !== "") {
-    processedLines.push(
-      ...entityHandler(
-        currentEntityName,
-        currentEntityConfig,
-        entityLine,
-        currentEntityChildLines
-      )
-    );
+  if (entityHandlerData.isSet()) {
+    processedLines.push(...entityHandler(entityHandlerData));
   }
   return processedLines;
 }
@@ -254,16 +267,17 @@ function processVariables(
   variables: QuizMdVariables,
   parserOptions: QuizMdParserOptions
 ): string[] {
+  let localizedVariables = { ...variables };
   return processLines(
     lines,
-    parserOptions,
-    (
-      entityName: string,
-      entityConfig: RendererParams,
-      entityLine: string,
-      entityChildLines: string[]
-    ): string[] => {
-      const translatedLines = [];
+    (entityHandlerData: EntityHandlerData): string[] => {
+      let {
+        entityLine,
+        entityChildLines,
+      }: {
+        entityLine: string;
+        entityChildLines: string[];
+      } = entityHandlerData;
       // Process variables in entityLine
       const quizmdVarPattern = /(?<!\\){{([a-z\d\.\-\s]+?)(?<!\\)}}/i;
       let match = entityLine.match(quizmdVarPattern);
@@ -271,15 +285,20 @@ function processVariables(
         const varDefaultValue = match[1];
         entityLine = entityLine.replace(
           `{{${varDefaultValue}}}`,
-          getVariableValue(variables, varDefaultValue, parserOptions)
+          getVariableValue(localizedVariables, varDefaultValue, parserOptions)
         );
         match = entityLine.match(quizmdVarPattern);
       }
       return [
         entityLine,
-        ...processVariables(entityChildLines, { ...variables }, parserOptions),
+        ...processVariables(
+          entityChildLines,
+          localizedVariables,
+          parserOptions
+        ),
       ];
-    }
+    },
+    parserOptions
   );
 }
 
@@ -293,7 +312,7 @@ function getVariableValue(
   }
   const variable = variables[defaultValueString];
   if ("randomize" in options && options["randomize"]) {
-    return variable.getRandomValue();
+    return variable.randomValue;
   } else {
     return variable.defaultValue;
   }

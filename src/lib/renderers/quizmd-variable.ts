@@ -23,6 +23,7 @@ export class QuizMdVariable {
   variableType: VariableType = VariableType.name;
   // Default value deduced from variable string
   defaultValue: any;
+  randomValue: any;
 
   constructor(variable: string) {
     this.variable = variable;
@@ -35,13 +36,14 @@ export class QuizMdVariable {
     } else {
       this.defaultValue = variable;
     }
+    this.resetRandomValue();
   }
 
   static fromDefaultValue(defaultValue: string) {
     return new QuizMdVariable(defaultValue);
   }
 
-  getRandomValue(): any {
+  resetRandomValue(): void {
     if (
       this.variableType === VariableType.int ||
       this.variableType === VariableType.float
@@ -66,7 +68,7 @@ export class QuizMdVariable {
         upperBound = Math.ceil(this.defaultValue / 2);
       }
       if (this.variableType === VariableType.int) {
-        return Math.floor(
+        this.randomValue = Math.floor(
           lowerBound + Math.random() * (upperBound - lowerBound)
         );
       } else {
@@ -77,11 +79,12 @@ export class QuizMdVariable {
           lowerBound + Math.random() * (upperBound - lowerBound);
         // Trim to the same number of decimal digits
         const expDecimalDigits = Math.pow(10, decimalDigits);
-        return Math.floor(randomValue * expDecimalDigits) / expDecimalDigits;
+        this.randomValue =
+          Math.floor(randomValue * expDecimalDigits) / expDecimalDigits;
       }
     } else {
       // generate new name
-      return getRandomName(this.variable);
+      this.randomValue = getRandomName(this.variable);
     }
   }
 }
