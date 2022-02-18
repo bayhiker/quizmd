@@ -17,6 +17,8 @@ class MMChoiceRenderer extends QuizMdRenderer {
     options: QuizMdParserOptions = {}
   ) {
     super(allRenderers, rendererParams, childLines, variables, options);
+    //NOT setting shuffleChildren, different questions under this mmchoice
+    //may need to be related and need to be sequential
   }
 
   renderOpening(): string {
@@ -40,6 +42,8 @@ class MChoiceRenderer extends QuizMdRenderer {
     options: QuizMdParserOptions = {}
   ) {
     super(allRenderers, rendererParams, childLines, variables, options);
+    //Shuffle alternatives if randomize flag is also set in QuizMdParserOptions
+    this.shuffleChildren = true;
   }
 
   renderOpening(): string {
@@ -83,6 +87,7 @@ class AlternativeRenderer extends QuizMdRenderer {
 
 export const renderers: QuizMdRenderers = {
   alternative: AlternativeRenderer,
+  solution: AlternativeRenderer,
   mchoice: MChoiceRenderer,
   mmchoice: MMChoiceRenderer,
 };

@@ -29,6 +29,7 @@ math.import(
 
 import processKatex from "../util/katex";
 import { kvparse } from "../util/kvparser";
+import { shuffle } from "../util/misc";
 import { QuizMdVariable, QuizMdVariables } from "./quizmd-variable";
 
 export type RendererParams = { [key: string]: unknown };
@@ -46,20 +47,23 @@ export class QuizMdRenderer {
   rendererParams: RendererParams;
   childLines: string[];
   variables: QuizMdVariables = {};
-  options: QuizMdParserOptions = {};
+  parserOptions: QuizMdParserOptions = {};
+  // For example, alternatives in an mchoice may need to be shuffled if randomize is set
+  // in a quizmd fenced block
+  shuffleChildren: boolean = false;
 
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
     childLines: string[] = [],
     variables: QuizMdVariables = {},
-    options: QuizMdParserOptions = {}
+    parserOptions: QuizMdParserOptions = {}
   ) {
     this.allRenderers = allRenderers;
     this.rendererParams = rendererParams;
     this.childLines = childLines;
     this.variables = variables;
-    this.options = options;
+    this.parserOptions = parserOptions;
   }
 
   /**
@@ -72,6 +76,10 @@ export class QuizMdRenderer {
   }
 
   render(): string {
+    const processLinesOptions: ProcessLinesOptions = new ProcessLinesOptions();
+    processLinesOptions.parserOptions = this.parserOptions;
+    processLinesOptions.variables = this.variables;
+    processLinesOptions.shuffle = this.shuffleChildren;
     const processedChildLines = processLines(
       this.childLines,
       (entityHandlerData: EntityHandlerData): string[] => {
@@ -101,13 +109,13 @@ export class QuizMdRenderer {
             this.allRenderers,
             entityConfig,
             entityChildLines,
-            this.options
+            this.variables,
+            this.parserOptions
           );
           return [renderer.render()];
         }
       },
-      this.options,
-      this.variables
+      processLinesOptions
     );
     return `${this.renderOpening()}${processedChildLines.join(
       ""
@@ -124,8 +132,13 @@ export class QuizMdRenderer {
 
 // A special renderer for root quizmd lines
 class QuizMdRootRenderer extends QuizMdRenderer {
-  constructor(allRenderers: QuizMdRenderers, childLines: string[] = []) {
-    super(allRenderers, {}, childLines);
+  constructor(
+    allRenderers: QuizMdRenderers,
+    childLines: string[] = [],
+    variables: QuizMdVariables,
+    parserOptions: QuizMdParserOptions
+  ) {
+    super(allRenderers, {}, childLines, variables, parserOptions);
   }
 
   renderOpening(): string {
@@ -174,6 +187,12 @@ class EntityHandlerData {
   }
 }
 
+class ProcessLinesOptions {
+  parserOptions: QuizMdParserOptions = {};
+  variables: QuizMdVariables = {};
+  shuffle: boolean = false;
+}
+
 /**
  * Generic method to process quizmd lines
  *
@@ -185,16 +204,15 @@ class EntityHandlerData {
 function processLines(
   lines: string[],
   entityHandler: (handlerData: EntityHandlerData) => string[],
-  parserOptions: QuizMdParserOptions = {},
-  variables: QuizMdVariables = {}
+  options: ProcessLinesOptions
 ) {
   if (!lines || lines.length == 0) {
     return [];
   }
   const processedLines: string[] = [];
   const entityHandlerData = new EntityHandlerData();
-  entityHandlerData.variables = variables;
-  entityHandlerData.parserOptions = parserOptions;
+  entityHandlerData.variables = options.variables;
+  entityHandlerData.parserOptions = options.parserOptions;
 
   let i = 0;
   // Keep all directive lines as is
@@ -206,6 +224,8 @@ function processLines(
 
   entityHandlerData.entityLine = lines[i];
   const entityIndentation = getIndentation(lines[i]);
+
+  const discoveredEntities: string[][] = [];
   while (i < lines.length) {
     const currentLine = lines[i];
     const currentIndentation = getIndentation(currentLine);
@@ -215,7 +235,7 @@ function processLines(
       if (entityHandlerData.isSet()) {
         // The entity in currentLine is not the first entity, render previous entity
         // before starting a new one
-        processedLines.push(...entityHandler(entityHandlerData));
+        discoveredEntities.push(entityHandler(entityHandlerData));
         entityHandlerData.clear();
       }
       // This is the start of a new entity
@@ -242,8 +262,16 @@ function processLines(
   }
   // Render last entity if it's not empty
   if (entityHandlerData.isSet()) {
-    processedLines.push(...entityHandler(entityHandlerData));
+    discoveredEntities.push(entityHandler(entityHandlerData));
   }
+  if (options.parserOptions["randomize"] && options.shuffle) {
+    //Shuffle discovered entities if randomize is set, for example
+    //alternatives under a mchoice problem will be shuffled if randomize is set
+    shuffle(discoveredEntities);
+  }
+  discoveredEntities.forEach((discoveredEntity) => {
+    processedLines.push(...discoveredEntity);
+  });
   return processedLines;
 }
 
@@ -251,17 +279,26 @@ export function parse(
   renderers: QuizMdRenderers,
   lines: string[],
   variables: QuizMdVariables = {},
-  options: QuizMdParserOptions = {}
+  parserOptions: QuizMdParserOptions = {}
 ): string {
   if (!lines || lines.length == 0) {
     return "";
   }
 
   const mergedLines = processMultiLine(lines);
-  const translatedLines = processVariables(mergedLines, variables, options);
+  const translatedLines = processVariables(
+    mergedLines,
+    variables,
+    parserOptions
+  );
   const katexLines = processKatex(translatedLines);
   // TODO Process variables
-  const rootRenderer = new QuizMdRootRenderer(renderers, katexLines);
+  const rootRenderer = new QuizMdRootRenderer(
+    renderers,
+    katexLines,
+    variables,
+    parserOptions
+  );
   return rootRenderer.render();
 }
 
@@ -297,6 +334,8 @@ function processVariables(
   parserOptions: QuizMdParserOptions
 ): string[] {
   let localizedVariables = { ...variables };
+  const processLinesOptions: ProcessLinesOptions = new ProcessLinesOptions();
+  processLinesOptions.parserOptions = parserOptions;
   return processLines(
     lines,
     (entityHandlerData: EntityHandlerData): string[] => {
@@ -339,7 +378,7 @@ function processVariables(
         ),
       ];
     },
-    parserOptions
+    processLinesOptions
   );
 }
 

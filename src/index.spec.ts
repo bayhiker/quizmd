@@ -204,7 +204,7 @@ describe("QuizMd Test", () => {
   test("getRenderers", () => {
     const { getAllRenderers } = quizmd;
     const renderers = getAllRenderers();
-    expect(Object.keys(renderers).length).toEqual(11);
+    expect(Object.keys(renderers).length).toEqual(12);
   });
 
   test("parse", async () => {

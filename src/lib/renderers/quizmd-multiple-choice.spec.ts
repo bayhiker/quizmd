@@ -142,4 +142,26 @@ describe("quizmd-plugin-multiple-choice", () => {
     const match = s.match(/expression \d+,/);
     expect(match).toBeTruthy();
   });
+
+  test("parseMchoice, verify alternatives are shuffled when randomize is et", () => {
+    let match = undefined;
+    for (let i = 0; i < 100; i++) {
+      const s = parse(
+        allRenderers,
+        [
+          "mchoice :- foo",
+          "  alternative:- alternativeA.",
+          "  alternative:- alternativeB.",
+          "  alternative:- alternativeC.",
+        ],
+        {},
+        { randomize: true }
+      );
+      match = s.match(/alternativeB.*?alternativeA/);
+      if (match) {
+        break;
+      }
+    }
+    expect(match).toBeTruthy();
+  });
 });
