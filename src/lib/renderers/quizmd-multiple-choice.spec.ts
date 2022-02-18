@@ -115,4 +115,31 @@ describe("quizmd-plugin-multiple-choice", () => {
     const match = s.match(/Answer is (\d+)\./);
     expect(match).toBeTruthy();
   });
+
+  test("parseContent, with math expression", () => {
+    const s = parse(allRenderers, [
+      "mchoice :- This has an expression {{1*2*3}}, yes",
+    ]);
+    const match = s.match(/expression 6,/);
+    expect(match).toBeTruthy();
+  });
+
+  test("parseContent, with variable expression and variables inside expression", () => {
+    const s = parse(allRenderers, [
+      "mchoice :- This has a variable expression {{{{1}}*{{2}}*3}}, yes",
+    ]);
+    const match = s.match(/expression 6,/);
+    expect(match).toBeTruthy();
+  });
+
+  test("parseContent, with variable expression and variables inside expression, randomized", () => {
+    const s = parse(
+      allRenderers,
+      ["mchoice :- This has a variable expression {{{{1}}*{{2}}*3}}, yes"],
+      {},
+      { randomize: true }
+    );
+    const match = s.match(/expression \d+,/);
+    expect(match).toBeTruthy();
+  });
 });
