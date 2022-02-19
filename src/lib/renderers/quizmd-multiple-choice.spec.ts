@@ -107,12 +107,16 @@ describe("quizmd-plugin-multiple-choice", () => {
         "mchoice :- Problem 1 <br> \\",
         "$\\frac{3 \\times 5}{9 \\times {{11}}} \\times \\frac{7 \\times 9 \\times {{11}}}{3 \\times 5 \\times 7} $",
         "  alternative :- 50",
-        "  alternative :- Answer is {{11}}.",
+        "  solution :- Answer is {{11}}.",
       ],
       {},
       { randomize: true }
     );
-    const match = s.match(/Answer is (\d+)\./);
+    let match = s.match(/Answer is (\d+)\./);
+    expect(match).toBeTruthy();
+    match = s.match(/quizmd-multiple-choice-alternative/);
+    expect(match).toBeTruthy();
+    match = s.match(/quizmd-multiple-choice-solution/);
     expect(match).toBeTruthy();
   });
 

@@ -59,6 +59,7 @@ class MChoiceRenderer extends QuizMdRenderer {
 }
 
 class AlternativeRenderer extends QuizMdRenderer {
+  className: string = "quizmd-multiple-choice-alternative";
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
@@ -75,7 +76,7 @@ class AlternativeRenderer extends QuizMdRenderer {
     // alternative:
     //     content line 1
     //     content line 2
-    return `<li class="quizmd-multiple-choice-alternative">${parseKatex([
+    return `<li class="${this.className}">${parseKatex([
       "" + this.rendererParams["content"],
     ])}`;
   }
@@ -85,9 +86,23 @@ class AlternativeRenderer extends QuizMdRenderer {
   }
 }
 
+class SolutionRenderer extends AlternativeRenderer {
+  className: string = "quizmd-multiple-choice-alternative";
+  constructor(
+    allRenderers: QuizMdRenderers,
+    rendererParams: RendererParams,
+    childLines: string[] = [],
+    variables: QuizMdVariables = {},
+    options: QuizMdParserOptions = {}
+  ) {
+    super(allRenderers, rendererParams, childLines, variables, options);
+    this.className = "quizmd-multiple-choice-solution";
+  }
+}
+
 export const renderers: QuizMdRenderers = {
   alternative: AlternativeRenderer,
-  solution: AlternativeRenderer,
+  solution: SolutionRenderer,
   mchoice: MChoiceRenderer,
   mmchoice: MMChoiceRenderer,
 };
