@@ -39,6 +39,12 @@ export type QuizMdParserOptions = { [name: string]: any };
 // QuizMdRenderer must not be abstract or interface for dynamic instance creation to work
 // when rendering
 export class QuizMdRenderer {
+  // If used in vscode extension snippets:
+  // descShort: {prefix: "quizmd:name", "data": [sample], description: descLong}
+  name: string = "OVERRIDE-ME";
+  descShort: string = "OVERRIDE-ME";
+  descLong: string = "OVERRIDE-ME";
+  sample: string[] = [];
   /**
    * <key, value> dictionary of configuration information which
    * will be parsed by various concrete renderers.
@@ -366,7 +372,7 @@ function processVariables(
           `{{${varExp}}}`,
           limitedEvaluate(varExp)
         );
-        match = entityLine.match(quizmdVarPattern);
+        match = entityLine.match(varExpPattern);
       }
 
       return [

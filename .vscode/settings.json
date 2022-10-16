@@ -11,5 +11,8 @@
     "newcommand",
     "quizmd"
   ],
-  "[dist/samples.html]": { "editor.formatOnSave": false }
+  "[dist/samples.html]": {
+    "editor.formatOnSave": false
+  },
+  "jest.jestCommandLine": "jest"
 }

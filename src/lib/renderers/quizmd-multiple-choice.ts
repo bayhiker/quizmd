@@ -19,6 +19,17 @@ class MMChoiceRenderer extends QuizMdRenderer {
     super(allRenderers, rendererParams, childLines, variables, options);
     //NOT setting shuffleChildren, different questions under this mmchoice
     //may need to be related and need to be sequential
+    this.name = "mmchoice";
+    this.descShort = "mmchoice";
+    this.descLong = "Create a problem with a few multiple-choice questions";
+    this.sample = [
+      "mmchoice :- ${0:Problem 1}<br>", // Cursor moves to $0 location in an editor
+      "Problem statement",
+      "  mchoice :- Question 1<br>",
+      "  Question statement",
+      "    alternative:- text",
+      "    solution:- text",
+    ];
   }
 
   renderOpening(): string {
@@ -44,6 +55,15 @@ class MChoiceRenderer extends QuizMdRenderer {
     super(allRenderers, rendererParams, childLines, variables, options);
     //Shuffle alternatives if randomize flag is also set in QuizMdParserOptions
     this.shuffleChildren = true;
+    this.name = "mchoice";
+    this.descShort = "mchoice";
+    this.descLong = "Create a multiple-choice question";
+    this.sample = [
+      "mchoice :- ${0:Question 1}<br>",
+      "Question statement",
+      "  alternative:- text",
+      "  solution:- text",
+    ];
   }
 
   renderOpening(): string {
@@ -68,6 +88,10 @@ class AlternativeRenderer extends QuizMdRenderer {
     options: QuizMdParserOptions = {}
   ) {
     super(allRenderers, rendererParams, childLines, variables, options);
+    this.name = "alternative";
+    this.descShort = "alternative";
+    this.descLong = "Create an alternative";
+    this.sample = ["alternative:- ${0:text}"];
   }
 
   renderOpening(): string {
@@ -97,6 +121,10 @@ class SolutionRenderer extends AlternativeRenderer {
   ) {
     super(allRenderers, rendererParams, childLines, variables, options);
     this.className = "quizmd-multiple-choice-solution";
+    this.name = "solution";
+    this.descShort = "solution";
+    this.descLong = "Create a solution alternative";
+    this.sample = [`solution:- $0text`];
   }
 }
 

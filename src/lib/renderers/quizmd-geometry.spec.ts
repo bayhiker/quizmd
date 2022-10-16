@@ -42,6 +42,32 @@ describe("quizmd-plugin-geometry", () => {
     );
   });
 
+  test("polygon with node names", () => {
+    const htmlSvg = renderIt("polygon", {
+      points: "0,0 100,0 100,100 0,100",
+      stroke: "green",
+      labels: "A,B,C,D",
+      lengths: "1,2,3,4",
+      labelFill: "red",
+    });
+    const nodes = [
+      `<text x="0" y="10" fill="red">A</text>`,
+      `<text x="113" y="10" fill="red">B</text>`,
+      `<text x="113" y="118" fill="red">C</text>`,
+      `<text x="0" y="118" fill="red">D</text>`,
+      `<text x="56" y="10" fill="red">1</text>`,
+      `<text x="113" y="64" fill="red">2</text>`,
+      `<text x="56" y="118" fill="red">3</text>`,
+      `<text x="0" y="64" fill="red">4</text>`,
+    ];
+    expect(htmlSvg).toEqual(
+      `<polygon points="11,8 111,8 111,108 11,108" ${globalAttrs.replace(
+        "black",
+        "green"
+      )}/>${nodes.join("")}`
+    );
+  });
+
   test("polygon error no points", () => {
     expect(() => renderIt("polygon", {})).toThrow(/Points not defined/);
   });
@@ -52,6 +78,24 @@ describe("quizmd-plugin-geometry", () => {
     });
     expect(htmlSvg).toEqual(
       `<polyline points="0,0 100,100 100,200 0,100" ${globalAttrs}/>`
+    );
+  });
+
+  test("polyline with node names", () => {
+    const htmlSvg = renderIt("polyline", {
+      points: "0,0 100,100 100,200 0,100",
+      labels: "A,B,C,D",
+    });
+    const nodes = [
+      `<text x="8" y="10" fill="none">A</text>`,
+      `<text x="117" y="110" fill="none">B</text>`,
+      `<text x="117" y="218" fill="none">C</text>`,
+      `<text x="0" y="118" fill="none">D</text>`,
+    ];
+    expect(htmlSvg).toEqual(
+      `<polyline points="15,8 115,108 115,208 15,108" ${globalAttrs}/>${nodes.join(
+        ""
+      )}`
     );
   });
 
