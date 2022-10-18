@@ -70,7 +70,7 @@ class SvgRenderer extends GeometryRenderer {
   }
 
   getSvgTagStart() {
-    return `<svg width="${this.getWidth()}" height="${this.getHeight()}" viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg">`;
+    return `<svg width="${this.getWidth()}" height="${this.getHeight()}" viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg">${this.getGlobalAttrs()}`;
   }
 }
 
@@ -96,7 +96,9 @@ class ShapeRenderer extends GeometryRenderer {
   }
 
   getGlobalAttrs(): string {
-    return `fill="${this.getFill()}" stroke-width="${this.getStrokeWidth()}" stroke="${this.getStroke()}"`;
+    // Space already prepended in return value, callers no need to prepend space
+    // So to be consistent with QuizMdRenderer.getGlobalAttrs()
+    return ` fill="${this.getFill()}" stroke-width="${this.getStrokeWidth()}" stroke="${this.getStroke()}"${super.getGlobalAttrs()}`;
   }
 }
 
@@ -128,7 +130,7 @@ abstract class CenteredRenderer extends ShapeRenderer {
     if (!includeCxCy) {
       return super.getGlobalAttrs();
     }
-    return `cx="${this.getCx()}" cy="${this.getCy()}" ${super.getGlobalAttrs()}`;
+    return ` cx="${this.getCx()}" cy="${this.getCy()}"${super.getGlobalAttrs()}`;
   }
 }
 
@@ -251,7 +253,7 @@ abstract class PolyRenderer extends ShapeRenderer {
     for (const node of this.nodes) {
       pointsAttr += `${node.x},${node.y} `;
     }
-    return `points="${pointsAttr.trim()}" ${super.getGlobalAttrs()}`;
+    return ` points="${pointsAttr.trim()}"${super.getGlobalAttrs()}`;
   }
 
   private getPointXys(): number[][] {
@@ -411,7 +413,7 @@ abstract class XyRenderer extends ShapeRenderer {
   }
 
   getGlobalAttrs(): string {
-    return `x="${this.getX()}" y="${this.getY()}" ${super.getGlobalAttrs()}`;
+    return ` x="${this.getX()}" y="${this.getY()}"${super.getGlobalAttrs()}`;
   }
 }
 
@@ -433,7 +435,7 @@ class CircleRenderer extends CenteredRenderer {
   }
 
   renderOpening(): string {
-    return `<circle r="${this.getR()}" ${this.getGlobalAttrs()}/>`;
+    return `<circle r="${this.getR()}"${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -463,7 +465,7 @@ class EllipseRenderer extends CenteredRenderer {
   }
 
   renderOpening(): string {
-    return `<ellipse rx="${this.getRx()}" ry="${this.getRy()}" ${this.getGlobalAttrs()}/>`;
+    return `<ellipse rx="${this.getRx()}" ry="${this.getRy()}"${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -483,7 +485,7 @@ class PolygonRenderer extends PolyRenderer {
   }
 
   renderOpening(): string {
-    return `<polygon ${this.getGlobalAttrs()}/>${this.getNodeLabels()}${this.getEdgeLabels()}`;
+    return `<polygon${this.getGlobalAttrs()}/>${this.getNodeLabels()}${this.getEdgeLabels()}`;
   }
 }
 
@@ -503,7 +505,7 @@ class PolylineRenderer extends PolyRenderer {
   }
 
   renderOpening(): string {
-    return `<polyline ${this.getGlobalAttrs()}/>${this.getNodeLabels()}${this.getEdgeLabels()}`;
+    return `<polyline${this.getGlobalAttrs()}/>${this.getNodeLabels()}${this.getEdgeLabels()}`;
   }
 }
 
@@ -531,7 +533,7 @@ class RectRenderer extends XyRenderer {
   }
 
   renderOpening(): string {
-    return `<rect width="${this.getWidth()}" height="${this.getHeight()}" ${this.getGlobalAttrs()}/>`;
+    return `<rect width="${this.getWidth()}" height="${this.getHeight()}"${this.getGlobalAttrs()}/>`;
   }
 }
 
@@ -568,7 +570,7 @@ class RhombusRenderer extends CenteredRenderer {
     const points = `${x},${y + q / 2} ${x + p / 2},${y} ${x},${y - q / 2} ${
       x - p / 2
     },${y}`;
-    return `<polygon points="${points}" ${this.getGlobalAttrs(false)}/>`;
+    return `<polygon points="${points}"${this.getGlobalAttrs(false)}/>`;
   }
 }
 
@@ -590,7 +592,7 @@ class SquareRenderer extends XyRenderer {
   }
 
   renderOpening(): string {
-    return `<rect width="${this.getSide()}" height="${this.getSide()}" ${this.getGlobalAttrs()}/>`;
+    return `<rect width="${this.getSide()}" height="${this.getSide()}"${this.getGlobalAttrs()}/>`;
   }
 }
 

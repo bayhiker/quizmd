@@ -56,6 +56,8 @@ class MChoiceRenderer extends QuizMdRenderer {
     //Shuffle alternatives if randomize flag is also set in QuizMdParserOptions
     this.shuffleChildren = true;
     this.name = "mchoice";
+    this.cssStyle =
+      "display:flex;flex-direction:row;justify-content:flex-start;white-space:nowrap";
     this.descShort = "mchoice";
     this.descLong = "Create a multiple-choice question";
     this.sample = [
@@ -70,7 +72,7 @@ class MChoiceRenderer extends QuizMdRenderer {
     let content = this.rendererParams["content"] || "";
     return `<div class="quizmd-multiple-choice-mchoice">${parseKatex([
       "" + content,
-    ])}<ol type="A">`;
+    ])}<ol type="A"${this.getGlobalAttrs()}>`;
   }
 
   renderClosing(): string {
@@ -79,7 +81,6 @@ class MChoiceRenderer extends QuizMdRenderer {
 }
 
 class AlternativeRenderer extends QuizMdRenderer {
-  className: string = "quizmd-multiple-choice-alternative";
   constructor(
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
@@ -89,6 +90,7 @@ class AlternativeRenderer extends QuizMdRenderer {
   ) {
     super(allRenderers, rendererParams, childLines, variables, options);
     this.name = "alternative";
+    this.cssStyle = "padding:5px 100px 5px 10px";
     this.descShort = "alternative";
     this.descLong = "Create an alternative";
     this.sample = ["alternative:- ${0:text}"];
@@ -100,7 +102,7 @@ class AlternativeRenderer extends QuizMdRenderer {
     // alternative:
     //     content line 1
     //     content line 2
-    return `<li class="${this.className}">${parseKatex([
+    return `<li${this.getGlobalAttrs()}>${parseKatex([
       "" + this.rendererParams["content"],
     ])}`;
   }
@@ -120,8 +122,10 @@ class SolutionRenderer extends AlternativeRenderer {
     options: QuizMdParserOptions = {}
   ) {
     super(allRenderers, rendererParams, childLines, variables, options);
-    this.className = "quizmd-multiple-choice-solution";
     this.name = "solution";
+    if (this.parserOptions["isSolution"]) {
+      this.cssStyle = "padding: 5px 100px 5px 10px;color:red;font-weight:bold;";
+    }
     this.descShort = "solution";
     this.descLong = "Create a solution alternative";
     this.sample = [`solution:- $0text`];

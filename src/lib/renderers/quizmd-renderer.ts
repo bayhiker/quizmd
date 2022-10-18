@@ -42,6 +42,7 @@ export class QuizMdRenderer {
   // If used in vscode extension snippets:
   // descShort: {prefix: "quizmd:name", "data": [sample], description: descLong}
   name: string = "OVERRIDE-ME";
+  cssStyle: string = ""; // Optional, "style" attribute of the generated HTML tag
   descShort: string = "OVERRIDE-ME";
   descLong: string = "OVERRIDE-ME";
   sample: string[] = [];
@@ -62,7 +63,11 @@ export class QuizMdRenderer {
     allRenderers: QuizMdRenderers,
     rendererParams: RendererParams,
     childLines: string[] = [],
+    // Dict of QuizMdVariable's passed in from caller (e.g., markdown-it plugin)
     variables: QuizMdVariables = {},
+    // Parser options passed in from caller, eg, markdown-it plugin may pass in
+    // "isSolution: true" to indicate this parser is for generating solutions paper
+    // with solutions highlighted in mchoice
     parserOptions: QuizMdParserOptions = {}
   ) {
     this.allRenderers = allRenderers;
@@ -72,6 +77,11 @@ export class QuizMdRenderer {
     this.parserOptions = parserOptions;
   }
 
+  getGlobalAttrs(): string {
+    // Prepending " " to return string so we don't have to check
+    // if space needs to be prepended when generating HTML tags.
+    return this.cssStyle ? ` style="${this.cssStyle}"` : "";
+  }
   /**
    * Renders current QuizMd entity
    *

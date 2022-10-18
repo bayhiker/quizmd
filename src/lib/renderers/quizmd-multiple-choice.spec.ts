@@ -11,15 +11,15 @@ const renderIt = (name: string, rendererParams: RendererParams) => {
 describe("quizmd-plugin-multiple-choice", () => {
   test("alternative", () => {
     const html = renderIt("alternative", { content: "Alternative A" });
-    expect(html).toMatch(
-      /<li class="quizmd-multiple-choice-alternative">[^]*?Alternative A[^]*?<\/li>/
+    expect(html).toEqual(
+      `<li style="padding:5px 100px 5px 10px">Alternative A</li>`
     );
   });
 
   test("mchoice", () => {
     const html = renderIt("mchoice", { content: "Multiple Choice" });
     expect(html).toMatch(
-      /<div class="quizmd-multiple-choice-mchoice">[^]*?Multiple Choice[^]*?<ol type="A"><\/ol><\/div>/
+      /<div class="quizmd-multiple-choice-mchoice">[^]*?Multiple Choice[^]*?<ol type="A" style="display:flex;flex-direction:row;justify-content:flex-start;white-space:nowrap"><\/ol><\/div>/
     );
   });
 
@@ -110,13 +110,11 @@ describe("quizmd-plugin-multiple-choice", () => {
         "  solution :- Answer is {{11}}.",
       ],
       {},
-      { randomize: true }
+      { isSolution: true, randomize: true }
     );
     let match = s.match(/Answer is (\d+)\./);
     expect(match).toBeTruthy();
-    match = s.match(/quizmd-multiple-choice-alternative/);
-    expect(match).toBeTruthy();
-    match = s.match(/quizmd-multiple-choice-solution/);
+    match = s.match(/color:red/);
     expect(match).toBeTruthy();
   });
 
@@ -147,7 +145,7 @@ describe("quizmd-plugin-multiple-choice", () => {
     expect(match).toBeTruthy();
   });
 
-  test("parseMchoice, verify alternatives are shuffled when randomize is et", () => {
+  test("parseMchoice, verify alternatives are shuffled when randomize is set", () => {
     let match = undefined;
     for (let i = 0; i < 100; i++) {
       const s = parse(
@@ -162,6 +160,28 @@ describe("quizmd-plugin-multiple-choice", () => {
         { randomize: true }
       );
       match = s.match(/alternativeB.*?alternativeA/);
+      if (match) {
+        break;
+      }
+    }
+    expect(match).toBeTruthy();
+  });
+
+  test("parseMchoice, verify solutions are highlighted when isSolution is et", () => {
+    let match = undefined;
+    for (let i = 0; i < 100; i++) {
+      const s = parse(
+        allRenderers,
+        [
+          "mchoice :- foo",
+          "  alternative:- alternativeA.",
+          "  solution:- alternativeB.",
+          "  alternative:- alternativeC.",
+        ],
+        {},
+        { isSolution: true }
+      );
+      match = s.match(/color:red/);
       if (match) {
         break;
       }
