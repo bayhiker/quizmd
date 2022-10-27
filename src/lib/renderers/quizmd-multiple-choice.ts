@@ -70,7 +70,7 @@ class MChoiceRenderer extends QuizMdRenderer {
 
   renderOpening(): string {
     let content = this.rendererParams["content"] || "";
-    return `<div class="quizmd-multiple-choice-mchoice">${parseKatex([
+    return `<div style="display:block">${parseKatex([
       "" + content,
     ])}<ol type="A"${this.getGlobalAttrs()}>`;
   }

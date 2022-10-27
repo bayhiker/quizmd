@@ -62,15 +62,11 @@ class SvgRenderer extends GeometryRenderer {
   }
 
   renderOpening(): string {
-    return this.getSvgTagStart();
+    return `<div style="display:block;float:left"><svg width="${this.getWidth()}" height="${this.getHeight()}" viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg"${this.getGlobalAttrs()}>`;
   }
 
   renderClosing(): string {
-    return "</svg>";
-  }
-
-  getSvgTagStart() {
-    return `<svg width="${this.getWidth()}" height="${this.getHeight()}" viewBox="${this.getViewBox()}" xmlns="http://www.w3.org/2000/svg">${this.getGlobalAttrs()}`;
+    return "</svg></div>";
   }
 }
 
