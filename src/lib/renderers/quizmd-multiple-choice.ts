@@ -23,10 +23,8 @@ class MMChoiceRenderer extends QuizMdRenderer {
     this.descShort = "mmchoice";
     this.descLong = "Create a problem with a few multiple-choice questions";
     this.sample = [
-      "mmchoice :- ${0:Problem 1}<br>", // Cursor moves to $0 location in an editor
-      "Problem statement",
-      "  mchoice :- Question 1<br>",
-      "  Question statement",
+      "mmchoice :- Overall problem statement", // use ${0:text} to move cursor to $0 location in an editor
+      "  mchoice :- Question statement<br>",
       "    alternative:- text",
       "    solution:- text",
     ];
@@ -61,8 +59,7 @@ class MChoiceRenderer extends QuizMdRenderer {
     this.descShort = "mchoice";
     this.descLong = "Create a multiple-choice question";
     this.sample = [
-      "mchoice :- ${0:Question 1}<br>",
-      "Question statement",
+      "mchoice :- Question content",
       "  alternative:- text",
       "  solution:- text",
     ];
@@ -93,7 +90,7 @@ class AlternativeRenderer extends QuizMdRenderer {
     this.cssStyle = "padding:5px 100px 5px 10px";
     this.descShort = "alternative";
     this.descLong = "Create an alternative";
-    this.sample = ["alternative:- ${0:text}"];
+    this.sample = ["alternative:- alternative content"];
   }
 
   renderOpening(): string {
@@ -128,7 +125,7 @@ class SolutionRenderer extends AlternativeRenderer {
     }
     this.descShort = "solution";
     this.descLong = "Create a solution alternative";
-    this.sample = [`solution:- $0text`];
+    this.sample = [`solution:- solution content`];
   }
 }
 

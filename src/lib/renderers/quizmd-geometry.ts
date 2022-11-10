@@ -232,7 +232,8 @@ abstract class PolyRenderer extends ShapeRenderer {
 
   getPoints(): string {
     if (!("points" in this.rendererParams)) {
-      throw new Error("Points not defined!");
+      console.error("Points not defined!");
+      return "0,0 60,0 60,90 20,90 20,50 0,50";
     }
     return this.rendererParams["points"] as string;
   }
@@ -543,7 +544,7 @@ class RhombusRenderer extends CenteredRenderer {
     this.name = "rhombus";
     this.descShort = "rhombus";
     this.descLong = "Draw a rhombus";
-    this.sample = [`rhombus p="5" q="10" cx="50" cy="50"`];
+    this.sample = [`rhombus: p="5" q="10" cx="50" cy="50"`];
   }
 
   getP(): string {

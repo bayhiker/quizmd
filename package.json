@@ -24,6 +24,7 @@
     "index.js"
   ],
   "scripts": {
+    "update-readme": "ts-node ./src/readme/readme.ts",
     "build": "npm run prebuild && rollup -c",
     "test": "jest",
     "test:cov": "jest --coverage",
